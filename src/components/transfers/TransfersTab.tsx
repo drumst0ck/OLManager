@@ -25,6 +25,7 @@ import {
   positionBadgeVariant,
 } from "../../lib/helpers";
 import { calculateLolOvr } from "../../lib/lolPlayerStats";
+import { resolvePlayerPhoto } from "../../lib/playerPhotos";
 import {
   annualAmountToWeeklyCommitment,
 } from "../../lib/finance";
@@ -505,6 +506,9 @@ export default function TransfersTab({
                 <thead>
                   <tr className="bg-gray-50 dark:bg-navy-800 border-b border-gray-200 dark:border-navy-600 text-xs">
                     <th className="py-3 px-4 font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                      {t("common.photo", "Foto")}
+                    </th>
+                    <th className="py-3 px-4 font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                       {t("common.position")}
                     </th>
                     <th className="py-3 px-4 font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -546,12 +550,23 @@ export default function TransfersTab({
                     const age = calcAge(player.date_of_birth);
                     const offersForThisPlayer = player.transfer_offers;
                     const lolRole = getLolRoleForPlayer(player);
+                    const photoSrc = resolvePlayerPhoto(player.id, player.match_name);
                     return (
                       <tr
                         key={player.id}
                         className="hover:bg-gray-50 dark:hover:bg-navy-700/50 transition-colors cursor-pointer group"
                         onClick={() => onSelectPlayer(player.id)}
                       >
+                        <td className="py-2.5 px-4">
+                          <img
+                            src={photoSrc ?? "/player-photos/107455908655055017.png"}
+                            alt={player.match_name}
+                            className="w-8 h-8 rounded-full object-cover bg-gray-200 dark:bg-navy-600"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/player-photos/107455908655055017.png";
+                            }}
+                          />
+                        </td>
                         <td className="py-2.5 px-4">
                           <Badge
                             variant={positionBadgeVariant(
@@ -581,15 +596,21 @@ export default function TransfersTab({
                           {age}
                         </td>
                         <td className="py-2.5 px-4">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (player.team_id) onSelectTeam(player.team_id);
-                            }}
-                            className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-500 hover:underline transition-colors"
-                          >
-                            {getTeamName(gameState.teams, player.team_id)}
-                          </button>
+                          {player.team_id ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectTeam(player.team_id!);
+                              }}
+                              className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-500 hover:underline transition-colors"
+                            >
+                              {getTeamName(gameState.teams, player.team_id)}
+                            </button>
+                          ) : (
+                            <span className="text-xs font-medium text-gray-400 dark:text-gray-500 italic">
+                              {t("players.freeAgent") || "Agente Libre"}
+                            </span>
+                          )}
                         </td>
                         <td className="py-2.5 px-4 text-sm text-gray-600 dark:text-gray-400 font-medium tabular-nums">
                           {formatVal(player.market_value)}
