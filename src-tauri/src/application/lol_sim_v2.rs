@@ -210,6 +210,8 @@ struct ChampionRuntime {
     support_roam_cd_until: f64,
     #[serde(default)]
     support_last_roam_role: String,
+    #[serde(default)]
+    debug_ai_decision: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -566,7 +568,7 @@ const OBJECTIVE_SECURE_XP: i64 = 90;
 const VOIDGRUB_TOWER_DAMAGE_PER_STACK: f64 = 0.03;
 const VOIDGRUB_TOWER_DAMAGE_MAX: f64 = 0.09;
 const OBJECTIVE_NEXT_SPAWN_FALLBACK: f64 = 9_999_999.0;
-const NAV_GRID_SIZE: usize = 192;
+const NAV_GRID_SIZE: usize = 128;
 const NAV_PATH_MIN_DIRECT_DIST: f64 = 0.012;
 const NAV_PATH_TRIVIAL_NODE_EPSILON: f64 = 0.0095;
 const CHAMPION_REPATH_MIN_TARGET_DELTA: f64 = 0.018;
