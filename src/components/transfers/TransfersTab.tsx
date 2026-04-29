@@ -457,8 +457,9 @@ export default function TransfersTab({
               key={pos}
               onClick={() => setPosFilter(posFilter === pos ? null : pos)}
               className={`px-3 py-1.5 rounded-lg text-xs font-heading font-bold uppercase tracking-wider transition-all ${posFilter === pos ? "bg-primary-500 text-white shadow-sm" : "bg-white dark:bg-navy-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-navy-600"}`}
+              title={pos}
             >
-              {pos === "JUNGLE" ? "JG" : pos}
+              <RoleBadge role={pos} size="sm" />
             </button>
           ))}
         </div>
