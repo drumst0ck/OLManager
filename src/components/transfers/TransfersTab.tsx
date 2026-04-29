@@ -594,15 +594,15 @@ export default function TransfersTab({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onSelectTeam(player.team_id!);
+                                onSelectTeam(player.team_id);
                               }}
-                              className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-500 hover:underline transition-colors"
+                              className="text-left hover:text-primary-500 transition-colors font-medium text-gray-900 dark:text-gray-100"
                             >
-                              {getTeamName(gameState.teams, player.team_id)}
+                              {getTeamName(gameState, player.team_id)}
                             </button>
                           ) : (
-                            <span className="text-xs font-medium text-gray-400 dark:text-gray-500 italic">
-                              {t("players.freeAgent") || "Agente Libre"}
+                            <span className="text-gray-500 dark:text-gray-400 italic">
+                              {t("common.freeAgent")}
                             </span>
                           )}
                         </td>
