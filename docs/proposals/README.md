@@ -138,8 +138,8 @@ BO1  Team BDS        |  VS  |  Team Vitality  |  →
 | Archivo | Cambio |
 |---------|--------|
 | `src/components/ui/index.ts` | Exporta `RoleBadge` |
-| `src/components/players/PlayersListTab.tsx` | Reemplaza Badge con RoleBadge |
-| `src/components/transfers/TransfersTab.tsx` | Reemplaza Badge con RoleBadge |
+| `src/components/players/PlayersListTab.tsx` | Reemplaza Badge con RoleBadge + filtros con iconos |
+| `src/components/transfers/TransfersTab.tsx` | Reemplaza Badge con RoleBadge + filtros con iconos |
 | `src/components/finances/FinancesTab.tsx` | Reemplaza Badge con RoleBadge, elimina `roleBadgeVariant` duplicado |
 | `src/components/teamProfile/TeamProfileRosterCard.tsx` | Reemplaza Badge con RoleBadge, elimina `roleBadgeVariant` duplicado |
 | `src/components/champions/ChampionsTab.tsx` | Cambia de URLs externas (CommunityDragon) a iconos locales |
@@ -148,7 +148,7 @@ BO1  Team BDS        |  VS  |  Team Vitality  |  →
 - ✅ **Componente reutilizable**: `<RoleBadge role="JUNGLE" size="sm" />`
 - ✅ **Iconos locales**: Sin dependencias externas, carga más rápida
 - ✅ **DRY**: Elimina 6 definiciones duplicadas de `roleBadgeVariant`
-- ✅ **Consistencia visual**: Mismo estilo en todas las listas
+- ✅ **Consistencia visual**: Mismo estilo en todas las listas y filtros
 - ✅ **Fácil mantenimiento**: Single source of truth en `src/lib/roleIcons.ts`
 - ✅ **Opciones**:
   - `size`: "sm" | "md" | "lg"
@@ -157,13 +157,28 @@ BO1  Team BDS        |  VS  |  Team Vitality  |  →
   - `title`: tooltip personalizado
 
 #### 🎯 Roles y colores:
-| Role | Color | Abreviatura |
-|------|-------|-------------|
-| TOP | danger (rojo) | TOP |
-| JUNGLE | success (verde) | JG |
-| MID | accent (amarillo) | MID |
-| ADC | primary (azul) | ADC |
-| SUPPORT | neutral (gris) | SUP |
+| Role | Color | Abreviatura | Icono en |
+|------|-------|-------------|----------|
+| TOP | danger (rojo) | TOP | Listas + Filtros |
+| JUNGLE | success (verde) | JG | Listas + Filtros |
+| MID | accent (amarillo) | MID | Listas + Filtros |
+| ADC | primary (azul) | ADC | Listas + Filtros |
+| SUPPORT | neutral (gris) | SUP | Listas + Filtros |
+
+#### 🔁 Filtros de roles actualizados:
+**Antes** (texto):
+```
+[Todos] [TOP] [JG] [MID] [ADC] [SUP]
+```
+
+**Después** (iconos):
+```
+[Todos] [🔴] [🟢] [🟡] [🔵] [⚪]
+```
+
+- ✅ **Tooltip**: Hover sobre el icono muestra el nombre completo del role
+- ✅ **Mismo comportamiento**: Click para filtrar, activo/inactivo con colores
+- ✅ **Consistencia**: Mismos iconos en listas y filtros
 
 ---
 
@@ -261,6 +276,8 @@ Estos warnings son del código original, no de nuestros cambios.
 ## 🚀 Git History (Clean & Conventional)
 
 ```
+754f36a feat(ui): replace role filter text with icon badges
+f163e76 docs: add role icons documentation to QoL-UI PR
 eaae106 feat(ui): add role icons to player lists and champion tier lists
 ae9eb94 feat(ui): add player photos column to transfers list
 c14d264 feat(ui): add player photos column to players list
@@ -289,7 +306,9 @@ c14d264 feat(ui): add player photos column to players list
 9. **`fix(ui): refresh avatar on game load...`** - Fix: useEffect no detectaba cambios en gameState
 10. **`feat(ui): add player photos column to players list`** - Columna de fotos en lista de jugadores
 11. **`feat(ui): add player photos column to transfers list`** - Columna de fotos en transfers
-12. **`feat(ui): add role icons to player lists...`** - Iconos de roles (TOP, JUNGLE, MID, ADC, SUPPORT) en todas las listas
+12. **`feat(ui): add role icons to player lists...`** - Iconos de roles en badges de listas y champions
+13. **`docs: add role icons documentation...`** - Documentación completa del sistema de iconos
+14. **`feat(ui): replace role filter text with icon badges`** - Botones de filtro ahora usan iconos en vez de texto
 
 ---
 
