@@ -172,8 +172,9 @@ export default function PlayersListTab({
                 ? "bg-primary-500 text-white shadow-sm"
                 : "bg-white dark:bg-navy-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-navy-600"
             }`}
+            title="All roles"
           >
-            {t("players.allPos")}
+            <img src="/role-icons/allroles.png" alt="All roles" className="h-3.5 w-3.5" />
           </button>
           {positions.map((pos) => (
             <button
