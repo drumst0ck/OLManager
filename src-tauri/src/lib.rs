@@ -89,6 +89,8 @@ pub fn run() {
             start_new_game,
             export_world_database,
             write_temp_database,
+            load_world_editor_database,
+            save_world_editor_database,
             select_team,
             get_saves,
             load_game,

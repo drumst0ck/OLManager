@@ -67,7 +67,7 @@ export default function PlayerProfileHeroCard({
 }: PlayerProfileHeroCardProps) {
   const role = primaryRole;
   const roleVariant = getLolRoleBadgeVariant(role);
-  const playerPhoto = resolvePlayerPhoto(player.id, player.match_name);
+  const playerPhoto = resolvePlayerPhoto(player.id, player.match_name, player.profile_image_url);
   const [insigniaBackground, setInsigniaBackground] = useState<string | null>(null);
   const [editingRole, setEditingRole] = useState(false);
   const potentialRevealed = player.potential_revealed ?? null;
