@@ -888,6 +888,11 @@
     "noSchedule": "Nessun calendario di campionato disponibile.",
     "noLeague": "Nessun calendario di campionato disponibile.",
     "fixtures": "Partite",
+    "calendar": "Calendario",
+    "today": "Oggi",
+    "previousMonth": "Mese precedente",
+    "nextMonth": "Mese successivo",
+    "moreMatches": "altri",
     "standings": "Classifica",
     "matchday": "Giornata {{number}}",
     "season": "Stagione {{number}}"
