@@ -1251,6 +1251,8 @@
     "nextMonth": "Mois suivant",
     "moreMatches": "de plus",
     "matchesOnDay": "Matchs du jour",
+    "playoffsStartEstimate": "Début playoffs (est.)",
+    "playoffsStartEstimateHint": "Date estimée — les affiches sont générées à la fin de la saison régulière.",
     "standings": "Classement",
     "viewResult": "Voir le résultat",
     "matchday": "Journée {{number}}",

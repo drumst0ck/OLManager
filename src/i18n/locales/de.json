@@ -1245,6 +1245,8 @@
     "nextMonth": "Nächster Monat",
     "moreMatches": "mehr",
     "matchesOnDay": "Spiele dieses Tages",
+    "playoffsStartEstimate": "Playoffs-Start (vorl.)",
+    "playoffsStartEstimateHint": "Geschätztes Datum — die Paarungen werden nach dem Ende der regulären Saison erstellt.",
     "standings": "Tabelle",
     "viewResult": "View result",
     "matchday": "Spieltag {{number}}",

@@ -1251,6 +1251,8 @@
     "nextMonth": "Próximo mês",
     "moreMatches": "mais",
     "matchesOnDay": "Jogos do dia",
+    "playoffsStartEstimate": "Início playoffs (est.)",
+    "playoffsStartEstimateHint": "Data estimada — os confrontos são gerados quando a temporada regular termina.",
     "standings": "Classificação",
     "viewResult": "Ver resultado",
     "matchday": "Rodada {{number}}",

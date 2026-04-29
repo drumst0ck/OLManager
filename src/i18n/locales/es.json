@@ -1251,6 +1251,8 @@
     "nextMonth": "Mes siguiente",
     "moreMatches": "más",
     "matchesOnDay": "Partidos del día",
+    "playoffsStartEstimate": "Inicio playoffs (est.)",
+    "playoffsStartEstimateHint": "Fecha estimada — los emparejamientos se generan al cerrar la liga regular.",
     "standings": "Clasificación",
     "viewResult": "Ver resultado",
     "matchday": "Jornada {{number}}",

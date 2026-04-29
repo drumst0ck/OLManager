@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Trophy, X } from "lucide-react";
 import { GameStateData, FixtureData } from "../../store/gameStore";
 import { Card, CardBody, Badge } from "../ui";
 import {
@@ -205,6 +205,20 @@ export default function ScheduleCalendarView({
     return map;
   }, [fixtures, userTeamId]);
 
+  const estimatedPlayoffsStartKey = useMemo(() => {
+    const hasPlayoffs = fixtures.some((f) => f.competition === "Playoffs");
+    if (hasPlayoffs) return null;
+    const lastLeagueDate = fixtures
+      .filter((f) => f.competition === "League")
+      .map((f) => parseFixtureDate(f.date))
+      .filter((d): d is Date => d !== null)
+      .sort((a, b) => b.getTime() - a.getTime())[0];
+    if (!lastLeagueDate) return null;
+    const estimated = new Date(lastLeagueDate);
+    estimated.setDate(estimated.getDate() + 7);
+    return isoDateKey(estimated);
+  }, [fixtures]);
+
   const monthCells = useMemo(() => buildMonthGrid(viewMonth), [viewMonth]);
 
   const monthLabel = useMemo(() => {
@@ -284,6 +298,7 @@ export default function ScheduleCalendarView({
               (f) => f.home_team_id === userTeamId || f.away_team_id === userTeamId,
             );
             const overflow = cellFixtures.length - MAX_FIXTURES_PER_CELL;
+            const isPlayoffsStart = cellKey === estimatedPlayoffsStartKey;
 
             return (
               <div
@@ -295,6 +310,7 @@ export default function ScheduleCalendarView({
                     : "bg-gray-50/60 dark:bg-navy-900/40 border-gray-100 dark:border-navy-700 opacity-60",
                   isToday ? "ring-2 ring-primary-500/60 border-primary-400" : "",
                   hasUserMatch && !isToday ? "border-accent-400/60" : "",
+                  isPlayoffsStart ? "ring-1 ring-accent-500/50 border-accent-500/50" : "",
                 ].join(" ")}
               >
                 <div className="flex items-center justify-between">
@@ -316,6 +332,17 @@ export default function ScheduleCalendarView({
                   ) : null}
                 </div>
                 <div className="flex flex-col gap-1 overflow-hidden">
+                  {isPlayoffsStart ? (
+                    <div
+                      className="flex items-center gap-1 px-1 py-0.5 rounded border border-dashed border-accent-500/60 bg-accent-500/10 text-accent-600 dark:text-accent-300"
+                      title={t("schedule.playoffsStartEstimateHint", "Fecha estimada — los emparejamientos se generan al cerrar la liga regular")}
+                    >
+                      <Trophy className="w-3 h-3 shrink-0" />
+                      <span className="text-[10px] font-heading font-bold uppercase tracking-wider truncate">
+                        {t("schedule.playoffsStartEstimate", "Inicio playoffs (est.)")}
+                      </span>
+                    </div>
+                  ) : null}
                   {cellFixtures.slice(0, MAX_FIXTURES_PER_CELL).map((f) => (
                     <FixtureChip
                       key={f.id}
