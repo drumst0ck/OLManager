@@ -1,5 +1,5 @@
 import { Badge } from "./Badge";
-import { getRoleIconPath, getRoleBadgeVariant, getRoleAbbreviation, LolRole } from "../lib/roleIcons";
+import { getRoleIconPath, getRoleBadgeVariant, getRoleAbbreviation, LolRole } from "../../lib/roleIcons";
 
 interface RoleBadgeProps {
   role: string;
