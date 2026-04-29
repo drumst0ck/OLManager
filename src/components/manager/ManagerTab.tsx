@@ -82,7 +82,7 @@ export default function ManagerTab({ gameState }: ManagerTabProps) {
       }
     };
     loadAvatar();
-  }, [mgr.avatar_path]);
+  }, [mgr]);
 
   // Open settings modal and populate form with current values
   const handleOpenSettings = () => {
