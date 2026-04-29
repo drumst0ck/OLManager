@@ -4,14 +4,22 @@
 > **Fork**: `NicoRuedaA/OLManager` → **Upstream**: `OpenLeagueManager/OLManager`  
 > **Estado**: Ready for Review  
 > **Fecha**: 2026-04-29  
+> **Última actualización**: 2026-04-29 (Role Icons + Player Photos)  
 
 ---
 
 ## 📋 Resumen Ejecutivo
 
-Este branch contiene mejoras de UI/UX (Quality of Life) para OLManager, enfocadas en la experiencia del usuario al gestionar su perfil de manager. Incluye:
+Este branch contiene mejoras de UI/UX (Quality of Life) para OLManager, enfocadas en:
+
+**Perfil del Manager:**
 - Subida de avatar personalizado
 - Edición en vivo de datos del manager
+
+**Listas de jugadores y UI:**
+- Columna de fotos en lista de jugadores (PlayersList)
+- Columna de fotos en lista de transfers (TransfersTab)
+- Iconos de roles (TOP, JUNGLE, MID, ADC, SUPPORT) en todas las listas
 - Alineación visual de fixtures en el calendario
 
 Todas las mejoras son **no-rompientes** (backwards compatible) y siguen las convenciones del proyecto.
@@ -99,6 +107,63 @@ BO1  Team BDS        |  VS  |  Team Vitality  |  →
 | 3 | `60px` | **Center** | VS o Score |
 | 4 | `1fr` | **Left** | Away team + logo |
 | 5 | `32px` | Right | View result button |
+
+---
+
+### 4. **Player Photos in Transfers List** `feat(ui): add player photos column to transfers list`
+
+#### 📝 Archivos modificados:
+| Archivo | Tipo | Descripción |
+|---------|------|-------------|
+| `src/components/transfers/TransfersTab.tsx` | Modificado | Agregada columna de foto con `resolvePlayerPhoto()` |
+
+#### 🎨 Características:
+- ✅ **Columna de foto**: Primera columna en la tabla de transfers
+- ✅ **Fallback**: Usa foto por defecto si no hay foto personalizada
+- ✅ **Error handling**: `onError` fallback a foto genérica
+- ✅ **Consistencia**: Misma lógica que PlayersList
+
+---
+
+### 5. **Role Icons System** `feat(ui): add role icons to player lists and champion tier lists`
+
+#### 📝 Archivos creados:
+| Archivo | Tipo | Descripción |
+|---------|------|-------------|
+| `src/lib/roleIcons.ts` | **NUEVO** | Helper centralizado con paths, variantes y abreviaturas |
+| `src/components/ui/RoleBadge.tsx` | **NUEVO** | Componente reutilizable Badge + Icono |
+| `public/role-icons/*.png` | **NUEVO** | 5 iconos: top.png, jungler.png, mid.png, adc.png, support.png |
+
+#### 📝 Archivos modificados:
+| Archivo | Cambio |
+|---------|--------|
+| `src/components/ui/index.ts` | Exporta `RoleBadge` |
+| `src/components/players/PlayersListTab.tsx` | Reemplaza Badge con RoleBadge |
+| `src/components/transfers/TransfersTab.tsx` | Reemplaza Badge con RoleBadge |
+| `src/components/finances/FinancesTab.tsx` | Reemplaza Badge con RoleBadge, elimina `roleBadgeVariant` duplicado |
+| `src/components/teamProfile/TeamProfileRosterCard.tsx` | Reemplaza Badge con RoleBadge, elimina `roleBadgeVariant` duplicado |
+| `src/components/champions/ChampionsTab.tsx` | Cambia de URLs externas (CommunityDragon) a iconos locales |
+
+#### 🎨 Características:
+- ✅ **Componente reutilizable**: `<RoleBadge role="JUNGLE" size="sm" />`
+- ✅ **Iconos locales**: Sin dependencias externas, carga más rápida
+- ✅ **DRY**: Elimina 6 definiciones duplicadas de `roleBadgeVariant`
+- ✅ **Consistencia visual**: Mismo estilo en todas las listas
+- ✅ **Fácil mantenimiento**: Single source of truth en `src/lib/roleIcons.ts`
+- ✅ **Opciones**:
+  - `size`: "sm" | "md" | "lg"
+  - `showLabel`: muestra abreviatura (ej: "JG", "SUP")
+  - `className`: custom classes
+  - `title`: tooltip personalizado
+
+#### 🎯 Roles y colores:
+| Role | Color | Abreviatura |
+|------|-------|-------------|
+| TOP | danger (rojo) | TOP |
+| JUNGLE | success (verde) | JG |
+| MID | accent (amarillo) | MID |
+| ADC | primary (azul) | ADC |
+| SUPPORT | neutral (gris) | SUP |
 
 ---
 
@@ -196,6 +261,12 @@ Estos warnings son del código original, no de nuestros cambios.
 ## 🚀 Git History (Clean & Conventional)
 
 ```
+eaae106 feat(ui): add role icons to player lists and champion tier lists
+ae9eb94 feat(ui): add player photos column to transfers list
+c14d264 feat(ui): add player photos column to players list
+87c1ecf fix(ui): refresh avatar on game load by watching full manager object
+50b3093 fix(persist): save and load avatar_path from database
+9033660 docs: add comprehensive PR documentation for QoL-UI branch
 47a7a77 fix(ui): align VS/score column in schedule fixture list
 1a5147d fix: correct nickname type mismatch in update_manager_profile
 8497a6e feat(ui): add settings button to edit manager profile
@@ -214,6 +285,11 @@ Estos warnings son del código original, no de nuestros cambios.
 5. **`feat(ui): add settings button...`** - Modal de edición de perfil
 6. **`fix: correct nickname type mismatch...`** - Bug fix (String vs Option<String>)
 7. **`fix(ui): align VS/score column...`** - Alineación de calendario
+8. **`fix(persist): save and load avatar_path...`** - Fix: avatar se pierde al recargar partida
+9. **`fix(ui): refresh avatar on game load...`** - Fix: useEffect no detectaba cambios en gameState
+10. **`feat(ui): add player photos column to players list`** - Columna de fotos en lista de jugadores
+11. **`feat(ui): add player photos column to transfers list`** - Columna de fotos en transfers
+12. **`feat(ui): add role icons to player lists...`** - Iconos de roles (TOP, JUNGLE, MID, ADC, SUPPORT) en todas las listas
 
 ---
 
@@ -254,6 +330,21 @@ npm run tauri dev
 1. Ir a pestaña **"Calendar"** (o "Schedule")
 2. ✅ Verificar que todos los **"VS"** y **scores** están perfectamente alineados verticalmente
 3. ✅ Home teams alineados a la derecha, Away teams a la izquierda
+
+#### 4. **Player Photos**:
+1. Ir a pestaña **"Players"**
+2. ✅ Ver columna de fotos en la primera columna
+3. Ir a pestaña **"Transfers"**
+4. ✅ Ver columna de fotos en la primera columna
+5. ✅ Las fotos se ven correctamente (sin errores de carga)
+
+#### 5. **Role Icons**:
+1. Ir a pestaña **"Players"** → ✅ Ver iconos de roles (TOP, JG, MID, ADC, SUP) con colores
+2. Ir a pestaña **"Transfers"** → ✅ Mismos iconos de roles
+3. Ir a pestaña **"Finances"** → ✅ Mismos iconos de roles
+4. Ir a pestaña **"Champions"** → ✅ Iconos de roles en los filtros (arriba del tier list)
+5. Ir a pestaña **"Teams"** → Seleccionar un equipo → ✅ Ver iconos de roles en el roster
+6. ✅ Verificar colores: TOP (rojo), JUNGLE (verde), MID (amarillo), ADC (azul), SUPPORT (gris)
 
 ---
 
