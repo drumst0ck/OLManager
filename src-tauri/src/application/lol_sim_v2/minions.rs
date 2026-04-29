@@ -226,7 +226,8 @@ pub(super) fn resolve_minion_combat(runtime: &mut RuntimeState) {
                     BARON_MINION_DAMAGE_MULTIPLIER
                 } else {
                     1.0
-                };
+                }
+                * MINION_DAMAGE_TO_STRUCTURE_MULTIPLIER;
             apply_damage_to_structure(runtime, structure_idx, damage, &attacker_team);
             runtime.minions[i].attack_cd_until = now + cadence;
             continue;

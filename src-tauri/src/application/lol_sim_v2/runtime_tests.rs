@@ -19,6 +19,31 @@ fn nav_grid_routes_around_walls_for_champion_paths() {
 }
 
 #[test]
+fn bot_lane_waypoints_do_not_cross_closed_walls() {
+    let path = lane_path_for("blue", "bot");
+    let walls = active_nav_walls();
+    assert!(path.len() >= 2, "bot lane path should have segments");
+
+    for seg in path.windows(2) {
+        let a = seg[0];
+        let b = seg[1];
+        for step in 0..=24 {
+            let t = step as f64 / 24.0;
+            let p = Vec2 {
+                x: a.x + (b.x - a.x) * t,
+                y: a.y + (b.y - a.y) * t,
+            };
+            assert!(
+                !walls.iter().any(|w| point_in_polygon(p, &w.points)),
+                "bot lane segment intersects closed wall at ({:.4},{:.4})",
+                p.x,
+                p.y
+            );
+        }
+    }
+}
+
+#[test]
 fn minion_holds_position_when_enemy_lane_combat_is_nearby() {
     let neutral = NeutralTimersRuntime {
         dragon_soul_unlocked: false,

@@ -12,7 +12,7 @@ use super::{
     RECALL_REACH_BUFFER_SEC, RECALL_SAFE_ENEMY_RADIUS, RECALL_TRIGGER_HP_RATIO,
     SUPPORT_OPEN_ROAM_AT_SEC, SUPPORT_ROAM_UNLOCK_AT_SEC,
     MAJOR_OBJECTIVE_TEAM_ASSIST_RADIUS, OBJECTIVE_ASSIST_RADIUS, OBJECTIVE_ATTEMPT_RADIUS,
-    OBJECTIVE_PATH_MIN_TARGET_DELTA, NEXUS_DEFENSE_THREAT_RADIUS,
+    OBJECTIVE_PATH_MIN_TARGET_DELTA, NEXUS_DEFENSE_THREAT_RADIUS, MINION_XP_SHARE_RADIUS,
 };
 
 pub(super) fn nearest_enemy_champion_snapshot<'a>(
@@ -548,12 +548,134 @@ pub(super) fn decide_champion_state(
     }
 
     champion.state = "lane".to_string();
+
+    if let Some(push_anchor) = post_tower_push_anchor(champion, minions, structures) {
+        set_champion_direct_path_hysteresis(champion, push_anchor, OBJECTIVE_PATH_MIN_TARGET_DELTA);
+        return;
+    }
+
     let target = if now < LANE_COMBAT_UNLOCK_AT {
         lane_pre_wave_hold_pos(champion, structures)
     } else {
         lane_farm_anchor_pos_v2(champion, now, champions, minions, structures)
     };
+
+    let lane_pressure = lane_pressure_at(
+        champion,
+        champion.pos,
+        champions,
+        minions,
+        LANE_LOCAL_PRESSURE_RADIUS,
+    );
+    let enemy_advantage = lane_pressure.enemy_score - lane_pressure.ally_score;
+    let safe_enough_for_xp = enemy_advantage <= 1.1 && hp_ratio >= 0.24;
+    let target = if safe_enough_for_xp {
+        maybe_xp_soak_anchor(champion, target, minions).unwrap_or(target)
+    } else {
+        target
+    };
+
     set_champion_direct_path(champion, target);
+}
+
+fn post_tower_push_anchor(
+    champion: &ChampionRuntime,
+    minions: &[MinionRuntime],
+    structures: &[StructureRuntime],
+) -> Option<Vec2> {
+    if champion.role == "JGL" || champion.role == "SUP" {
+        return None;
+    }
+
+    let lane = normalized_lane(&champion.lane);
+    let team = normalized_team(&champion.team);
+
+    let enemy_tower_down_in_lane = structures.iter().any(|structure| {
+        normalized_team(&structure.team) != team
+            && structure.kind == "tower"
+            && normalized_lane(&structure.lane) == lane
+            && !structure.alive
+    });
+    if !enemy_tower_down_in_lane {
+        return None;
+    }
+
+    let allied_wave_nearby = minions.iter().filter(|minion| {
+        minion.alive
+            && normalized_team(&minion.team) == team
+            && normalized_lane(&minion.lane) == lane
+            && dist(minion.pos, champion.pos) <= 0.20
+    }).count();
+    if allied_wave_nearby < 2 {
+        return None;
+    }
+
+    let next_enemy_tower = structures
+        .iter()
+        .filter(|structure| {
+            structure.alive
+                && structure.kind == "tower"
+                && normalized_team(&structure.team) != team
+                && normalized_lane(&structure.lane) == lane
+        })
+        .min_by(|a, b| {
+            dist(champion.pos, a.pos)
+                .partial_cmp(&dist(champion.pos, b.pos))
+                .unwrap_or(Ordering::Equal)
+        })?;
+
+    let dir_to_base = normalize(Vec2 {
+        x: base_position_for(&champion.team).x - next_enemy_tower.pos.x,
+        y: base_position_for(&champion.team).y - next_enemy_tower.pos.y,
+    });
+
+    Some(Vec2 {
+        x: clamp(next_enemy_tower.pos.x + dir_to_base.x * 0.055, 0.01, 0.99),
+        y: clamp(next_enemy_tower.pos.y + dir_to_base.y * 0.055, 0.01, 0.99),
+    })
+}
+
+fn maybe_xp_soak_anchor(
+    champion: &ChampionRuntime,
+    fallback: Vec2,
+    minions: &[MinionRuntime],
+) -> Option<Vec2> {
+    let lane = normalized_lane(&champion.lane);
+    let enemy_minion = minions
+        .iter()
+        .filter(|minion| {
+            minion.alive
+                && normalized_team(&minion.team) != normalized_team(&champion.team)
+                && normalized_lane(&minion.lane) == lane
+        })
+        .min_by(|a, b| {
+            dist(champion.pos, a.pos)
+                .partial_cmp(&dist(champion.pos, b.pos))
+                .unwrap_or(Ordering::Equal)
+        })?;
+
+    let d = dist(champion.pos, enemy_minion.pos);
+    if d <= MINION_XP_SHARE_RADIUS * 0.95 {
+        return None;
+    }
+
+    let dir = normalize(Vec2 {
+        x: champion.pos.x - enemy_minion.pos.x,
+        y: champion.pos.y - enemy_minion.pos.y,
+    });
+    let soak = Vec2 {
+        x: enemy_minion.pos.x + dir.x * (MINION_XP_SHARE_RADIUS * 0.8),
+        y: enemy_minion.pos.y + dir.y * (MINION_XP_SHARE_RADIUS * 0.8),
+    };
+
+    if dist(soak, fallback) < 0.25 {
+        Some(Vec2 {
+            x: clamp(soak.x, 0.01, 0.99),
+            y: clamp(soak.y, 0.01, 0.99),
+        })
+    } else {
+        None
+    }
 }
 
 pub(super) fn is_objective_neutral_key(key: &str) -> bool {

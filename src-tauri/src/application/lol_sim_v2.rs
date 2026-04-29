@@ -455,9 +455,10 @@ struct GridCell {
 const MINION_FIRST_WAVE_AT: f64 = 30.0;
 const LANE_COMBAT_UNLOCK_AT: f64 = MINION_FIRST_WAVE_AT + 8.0;
 const FIRST_WAVE_CONTEST_UNTIL: f64 = MINION_FIRST_WAVE_AT + 45.0;
-const CHAMPION_DECISION_CADENCE_SEC: f64 = 0.8;
+const CHAMPION_DECISION_CADENCE_SEC: f64 = 0.85;
 const MINION_DAMAGE_TO_MINION_MULTIPLIER: f64 = 0.52;
-const MINION_DAMAGE_TO_CHAMPION_MULTIPLIER: f64 = 0.32;
+const MINION_DAMAGE_TO_CHAMPION_MULTIPLIER: f64 = 0.24;
+const MINION_DAMAGE_TO_STRUCTURE_MULTIPLIER: f64 = 0.42;
 const CHAMPION_DAMAGE_TO_MINION_MULTIPLIER: f64 = 0.6;
 const RECALL_TRIGGER_HP_RATIO: f64 = 0.34;
 const RECALL_CHANNEL_SEC: f64 = 6.5;
@@ -473,8 +474,8 @@ const LANE_CHASE_MINION_CONTEXT_RADIUS: f64 = 0.12;
 const LOCAL_COMBAT_ENGAGE_RADIUS: f64 = 0.16;
 const LOCAL_STRUCTURE_ENGAGE_RADIUS: f64 = 0.12;
 const LANE_STRUCTURE_PRESSURE_RADIUS: f64 = 0.12;
-const LANE_HEALTHY_RETREAT_HP_RATIO: f64 = 0.6;
-const LANE_STRONG_UNFAVORABLE_PRESSURE_DELTA: f64 = 0.7;
+const LANE_HEALTHY_RETREAT_HP_RATIO: f64 = 0.52;
+const LANE_STRONG_UNFAVORABLE_PRESSURE_DELTA: f64 = 0.9;
 const LANE_EMPTY_ANCHOR_PROGRESS_MAX_INDEX: usize = 4;
 const HYBRID_TRADE_DEBUG_LOG_COOLDOWN_SEC: f64 = 8.0;
 const TRADE_SCORE_WEIGHT_BIAS: f64 = -0.18;
@@ -565,9 +566,10 @@ const OBJECTIVE_SECURE_XP: i64 = 90;
 const VOIDGRUB_TOWER_DAMAGE_PER_STACK: f64 = 0.03;
 const VOIDGRUB_TOWER_DAMAGE_MAX: f64 = 0.09;
 const OBJECTIVE_NEXT_SPAWN_FALLBACK: f64 = 9_999_999.0;
-const NAV_GRID_SIZE: usize = 512;
+const NAV_GRID_SIZE: usize = 192;
 const NAV_PATH_MIN_DIRECT_DIST: f64 = 0.012;
 const NAV_PATH_TRIVIAL_NODE_EPSILON: f64 = 0.0095;
+const CHAMPION_REPATH_MIN_TARGET_DELTA: f64 = 0.018;
 const ITEM_COST_MULTIPLIER: f64 = 0.32;
 const ITEM_COST_MIN: i64 = 300;
 const SUPPORT_CS_MIN_INTERVAL_SEC: f64 = 24.0;
@@ -1870,7 +1872,7 @@ fn stat_delta(score: f64) -> f64 {
 
 fn champion_micro_damage_multiplier(champion: &ChampionRuntime) -> f64 {
     let gameplay = stat_delta(champion.gameplay_score);
-    let role_penalty = if champion.role == "JGL" { 0.92 } else { 1.0 };
+    let role_penalty = if champion.role == "JGL" { 0.96 } else { 1.0 };
     ((1.0 + gameplay * 0.07) * role_penalty).clamp(0.84, 1.10)
 }
 
@@ -1881,7 +1883,7 @@ fn champion_lane_damage_multiplier(champion: &ChampionRuntime) -> f64 {
 
 fn champion_structure_focus_multiplier(champion: &ChampionRuntime) -> f64 {
     let iq_delta = stat_delta(champion.iq_score);
-    (1.0 + iq_delta * 0.08).clamp(0.88, 1.14)
+    (1.08 + iq_delta * 0.08).clamp(0.94, 1.22)
 }
 
 fn extract_runtime_team_tactics(
@@ -2390,6 +2392,12 @@ fn point_in_polygon(point: Vec2, polygon: &[Vec2]) -> bool {
 }
 
 fn set_champion_direct_path(champion: &mut ChampionRuntime, target: Vec2) {
+    if let Some(current_target) = current_champion_path_target(champion) {
+        if dist(current_target, target) <= CHAMPION_REPATH_MIN_TARGET_DELTA {
+            return;
+        }
+    }
+
     let mut path = nav_grid().find_path(champion.pos, target);
 
     while path.len() > 1 && dist(path[0], champion.pos) < NAV_PATH_TRIVIAL_NODE_EPSILON {
