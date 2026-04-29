@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Trophy, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Flag, Trophy, X } from "lucide-react";
 import { GameStateData, FixtureData } from "../../store/gameStore";
 import { Card, CardBody, Badge } from "../ui";
 import {
@@ -205,6 +205,16 @@ export default function ScheduleCalendarView({
     return map;
   }, [fixtures, userTeamId]);
 
+  const seasonStartKey = useMemo(() => {
+    const firstLeagueDate = fixtures
+      .filter((f) => f.competition === "League")
+      .map((f) => parseFixtureDate(f.date))
+      .filter((d): d is Date => d !== null)
+      .sort((a, b) => a.getTime() - b.getTime())[0];
+    if (!firstLeagueDate) return null;
+    return isoDateKey(firstLeagueDate);
+  }, [fixtures]);
+
   const estimatedPlayoffsStartKey = useMemo(() => {
     const hasPlayoffs = fixtures.some((f) => f.competition === "Playoffs");
     if (hasPlayoffs) return null;
@@ -299,6 +309,7 @@ export default function ScheduleCalendarView({
             );
             const overflow = cellFixtures.length - MAX_FIXTURES_PER_CELL;
             const isPlayoffsStart = cellKey === estimatedPlayoffsStartKey;
+            const isSeasonStart = cellKey === seasonStartKey;
 
             return (
               <div
@@ -311,6 +322,7 @@ export default function ScheduleCalendarView({
                   isToday ? "ring-2 ring-primary-500/60 border-primary-400" : "",
                   hasUserMatch && !isToday ? "border-accent-400/60" : "",
                   isPlayoffsStart ? "ring-1 ring-accent-500/50 border-accent-500/50" : "",
+                  isSeasonStart && !isToday ? "ring-1 ring-primary-500/50 border-primary-500/50" : "",
                 ].join(" ")}
               >
                 <div className="flex items-center justify-between">
@@ -332,6 +344,17 @@ export default function ScheduleCalendarView({
                   ) : null}
                 </div>
                 <div className="flex flex-col gap-1 overflow-hidden">
+                  {isSeasonStart ? (
+                    <div
+                      className="flex items-center gap-1 px-1 py-0.5 rounded border border-primary-500/60 bg-primary-500/10 text-primary-600 dark:text-primary-300"
+                      title={t("schedule.seasonStartHint", "Día de inicio de la temporada regular")}
+                    >
+                      <Flag className="w-3 h-3 shrink-0" />
+                      <span className="text-[10px] font-heading font-bold uppercase tracking-wider truncate">
+                        {t("schedule.seasonStart", "Inicio de temporada")}
+                      </span>
+                    </div>
+                  ) : null}
                   {isPlayoffsStart ? (
                     <div
                       className="flex items-center gap-1 px-1 py-0.5 rounded border border-dashed border-accent-500/60 bg-accent-500/10 text-accent-600 dark:text-accent-300"

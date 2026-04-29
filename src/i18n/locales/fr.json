@@ -1253,6 +1253,8 @@
     "matchesOnDay": "Matchs du jour",
     "playoffsStartEstimate": "Début playoffs (est.)",
     "playoffsStartEstimateHint": "Date estimée — les affiches sont générées à la fin de la saison régulière.",
+    "seasonStart": "Début de saison",
+    "seasonStartHint": "Premier jour de la saison régulière.",
     "standings": "Classement",
     "viewResult": "Voir le résultat",
     "matchday": "Journée {{number}}",

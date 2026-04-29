@@ -1247,6 +1247,8 @@
     "matchesOnDay": "Jogos do dia",
     "playoffsStartEstimate": "Início playoffs (est.)",
     "playoffsStartEstimateHint": "Data estimada — os confrontos são gerados quando termina a temporada regular.",
+    "seasonStart": "Início da temporada",
+    "seasonStartHint": "Primeiro dia da temporada regular.",
     "standings": "Classificação",
     "viewResult": "Ver resultado",
     "matchday": "Jornada {{number}}",

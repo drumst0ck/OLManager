@@ -1253,6 +1253,8 @@
     "matchesOnDay": "Partidos del día",
     "playoffsStartEstimate": "Inicio playoffs (est.)",
     "playoffsStartEstimateHint": "Fecha estimada — los emparejamientos se generan al cerrar la liga regular.",
+    "seasonStart": "Inicio de temporada",
+    "seasonStartHint": "Día de inicio de la temporada regular.",
     "standings": "Clasificación",
     "viewResult": "Ver resultado",
     "matchday": "Jornada {{number}}",

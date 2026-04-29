@@ -1247,6 +1247,8 @@
     "matchesOnDay": "Matches on this day",
     "playoffsStartEstimate": "Playoffs start (est.)",
     "playoffsStartEstimateHint": "Estimated date — matchups are generated when the regular season ends.",
+    "seasonStart": "Season start",
+    "seasonStartHint": "First day of the regular season.",
     "standings": "Standings",
     "viewResult": "View result",
     "matchday": "Matchday {{number}}",
