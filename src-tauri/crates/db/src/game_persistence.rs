@@ -4,9 +4,6 @@ use domain::stats::StatsState;
 use ofm_core::clock::GameClock;
 use ofm_core::game::{BoardObjective, Game, ObjectiveType, ScoutingAssignment};
 
-use std::fs;
-use std::path::Path;
-
 use crate::game_database::GameDatabase;
 use crate::repositories::{
     champion_repo, league_repo, manager_repo, message_repo, meta_repo, news_repo, objective_repo,
@@ -74,17 +71,10 @@ impl GamePersistenceWriter {
             .collect();
         scouting_repo::upsert_scouting_list(conn, &scouting_rows)?;
 
-        // Seed champions from JSON file if it exists
-        let champions_path = Path::new("../../../data/lec/draft/champions.json");
-        if let Ok(json_content) = fs::read_to_string(champions_path) {
-            if let Err(e) = champion_repo::seed_from_json(conn, &json_content) {
-                log::warn!("Failed to seed champions: {}", e);
-            }
-        } else {
-            log::warn!(
-                "Champions JSON file not found at {:?}, skipping seed",
-                champions_path
-            );
+        // Seed champions from embedded JSON
+        let json_content = include_str!("../../../../data/lec/draft/champions.json");
+        if let Err(e) = champion_repo::seed_from_json(conn, json_content) {
+            log::warn!("Failed to seed champions: {}", e);
         }
 
         Ok(())
@@ -100,7 +90,10 @@ impl GamePersistenceWriter {
 pub struct GamePersistenceReader;
 
 impl GamePersistenceReader {
-    pub fn read_game(db: &GameDatabase) -> Result<Game, String> {
+    pub fn read_game(db: &mut GameDatabase) -> Result<Game, String> {
+        // Ensure champions table exists and is seeded (for old saves)
+        db.ensure_champions()?;
+
         let conn = db.conn();
 
         let meta = meta_repo::load_meta(conn)?

@@ -63,7 +63,9 @@ pub fn all_migrations() -> Migrations<'static> {
         M::up(include_str!("sql/v027_academy_team_metadata.sql")),
         // V28: Add avatar_path column to managers table for profile avatar persistence
         M::up(include_str!("sql/v028_avatar_path.sql")),
-        // V29: Champions table for world champions catalog
+        // V29: Champion progression state (patch + masteries)
+        // (Historically in v028_champion_progression_state.sql, now handled by ofm_core)
+        // V30: Champions table for world champions catalog
         M::up(include_str!("sql/v030_champions_table.sql")),
     ])
 }

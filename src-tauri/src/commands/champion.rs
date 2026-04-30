@@ -1,21 +1,57 @@
 use db::game_database::GameDatabase;
 use db::repositories::champion_repo;
 use domain::champion::Champion;
+use ofm_core::state::StateManager;
+use tauri::State;
 
-/// Get all champions from the database.
-/// Creates an in-memory database if needed to access champion data.
+use crate::SaveManagerState;
+
+/// Get all champions from the active save game database.
+/// Assumes the database is already seeded (via write_game in game_persistence).
 #[tauri::command]
-pub fn get_champions() -> Result<Vec<Champion>, String> {
+pub fn get_champions(
+    state: State<'_, StateManager>,
+    sm_state: State<'_, SaveManagerState>,
+) -> Result<Vec<Champion>, String> {
     log::debug!("[cmd] get_champions");
-    let db = GameDatabase::open_in_memory()?;
-    champion_repo::get_all_champions(db.conn())
+
+    // Get the active save ID from the state manager
+    let save_id = state
+        .get_save_id()
+        .ok_or("No active game session - cannot get champions".to_string())?;
+
+    // Open the correct save game database using the SaveManager
+    let mut sm = sm_state
+        .0
+        .lock()
+        .map_err(|e| format!("Lock error: {}", e))?;
+
+    let db = sm.open_game_db(&save_id)?;
+    let conn = db.conn();
+
+    // Read champions - no lazy seed needed (seed happens in write_game)
+    champion_repo::get_all_champions(conn)
 }
 
-/// Get a single champion by its numeric ID.
+/// Get a single champion by its numeric ID from the active save game database.
 #[tauri::command]
-pub fn get_champion_by_id(id: i64) -> Result<Option<Champion>, String> {
+pub fn get_champion_by_id(
+    id: i64,
+    state: State<'_, StateManager>,
+    sm_state: State<'_, SaveManagerState>,
+) -> Result<Option<Champion>, String> {
     log::debug!("[cmd] get_champion_by_id: id={}", id);
-    let db = GameDatabase::open_in_memory()?;
+
+    let save_id = state
+        .get_save_id()
+        .ok_or("No active game session - cannot get champion".to_string())?;
+
+    let mut sm = sm_state
+        .0
+        .lock()
+        .map_err(|e| format!("Lock error: {}", e))?;
+
+    let db = sm.open_game_db(&save_id)?;
     champion_repo::get_champion_by_id(db.conn(), id)
 }
 

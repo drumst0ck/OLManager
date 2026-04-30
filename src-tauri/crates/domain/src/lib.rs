@@ -1,3 +1,4 @@
+pub mod champion;
 pub mod identity;
 pub mod league;
 pub mod manager;

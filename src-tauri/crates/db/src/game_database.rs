@@ -1,13 +1,16 @@
-use log::{debug, error, info};
+use log::{debug, error, info, warn};
 use rusqlite::Connection;
 use std::path::{Path, PathBuf};
 
-use crate::migrations::{MIGRATION_COUNT, all_migrations, ensure_compatible_schema};
+use crate::migrations::{all_migrations, MIGRATION_COUNT};
 
 /// Represents an open per-save game database with migrations applied.
 pub struct GameDatabase {
     conn: Connection,
     path: Option<PathBuf>,
+    /// Flag to track if champions table has been loaded/seeded.
+    /// This prevents repeated seeding attempts on old saves.
+    champions_loaded: bool,
 }
 
 impl GameDatabase {
@@ -36,6 +39,7 @@ impl GameDatabase {
         Ok(Self {
             conn,
             path: Some(path.to_path_buf()),
+            champions_loaded: false,
         })
     }
 
@@ -60,7 +64,11 @@ impl GameDatabase {
             format!("Database schema compatibility repair failed: {}", e)
         })?;
 
-        Ok(Self { conn, path: None })
+        Ok(Self {
+            conn,
+            path: None,
+            champions_loaded: false,
+        })
     }
 
     /// Get a reference to the underlying connection (for repositories).
@@ -91,6 +99,55 @@ impl GameDatabase {
         // We expect the version to equal the number of migrations (1 for V1)
         let expected = MIGRATION_COUNT;
         Ok(current == expected)
+    }
+
+    /// Ensure the champions table exists and is seeded.
+    /// This is idempotent — safe to call multiple times.
+    /// For OLD saves (pre-champions feature), the table won't exist and will be created + seeded.
+    /// For NEW saves, the table exists via migration and this is a no-op.
+    pub fn ensure_champions(&mut self) -> Result<(), String> {
+        // Already loaded — skip
+        if self.champions_loaded {
+            debug!("[game_db] champions already loaded, skipping");
+            return Ok(());
+        }
+
+        // Check if champions table exists
+        let table_exists: bool = self
+            .conn
+            .query_row(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='champions'",
+                [],
+                |row| row.get::<_, String>(0).map(|_| true),
+            )
+            .unwrap_or(false);
+
+        if !table_exists {
+            warn!("[game_db] champions table not found, creating and seeding...");
+            // Execute the SQL schema
+            let schema_sql = include_str!("sql/v030_champions_table.sql");
+            self.conn.execute_batch(schema_sql).map_err(|e| {
+                error!("[game_db] failed to create champions table: {}", e);
+                format!("Failed to create champions table: {}", e)
+            })?;
+
+            // Seed from embedded JSON
+            let json_content = include_str!("../../../../data/lec/draft/champions.json");
+            match crate::repositories::champion_repo::seed_from_json(&self.conn, json_content) {
+                Ok(count) => {
+                    info!("[game_db] champions table seeded with {} champions", count);
+                }
+                Err(e) => {
+                    error!("[game_db] failed to seed champions: {}", e);
+                    return Err(format!("Failed to seed champions: {}", e));
+                }
+            }
+        } else {
+            debug!("[game_db] champions table already exists");
+        }
+
+        self.champions_loaded = true;
+        Ok(())
     }
 }
 
