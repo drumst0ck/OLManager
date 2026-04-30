@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Flag, Trophy, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Flag, Trophy, X, Swords } from "lucide-react";
 import { GameStateData, FixtureData } from "../../store/gameStore";
 import { Card, CardBody, Badge } from "../ui";
 import {
@@ -24,6 +24,22 @@ interface Props {
 
 const WEEKDAY_REFERENCE_MONDAY = new Date(Date.UTC(2024, 0, 1));
 const MAX_FIXTURES_PER_CELL = 3;
+const SCRIM_SLOT_WEEKDAYS: Record<string, number[]> = {
+  Intense: [1, 1, 2, 2, 3, 3],
+  Balanced: [1, 2, 2, 3],
+  Light: [1, 3],
+};
+
+interface ScrimCalendarEvent {
+  id: string;
+  dateKey: string;
+  slotIndex: number;
+  opponentTeamId: string;
+}
+
+type CalendarDayEvent =
+  | { type: "fixture"; fixture: FixtureData }
+  | { type: "scrim"; scrim: ScrimCalendarEvent };
 
 function buildMonthGrid(viewMonth: Date): Date[] {
   const firstOfMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
@@ -62,6 +78,47 @@ function sortFixturesUserFirst(
     if (aIsUser && !bIsUser) return -1;
     if (!aIsUser && bIsUser) return 1;
     return a.matchday - b.matchday;
+  });
+}
+
+function getCurrentWeekStart(currentDateStr: string): Date | null {
+  const currentDate = parseFixtureDate(currentDateStr);
+  if (!currentDate) return null;
+  const weekdayMondayBased = (currentDate.getDay() + 6) % 7;
+  const weekStart = new Date(currentDate);
+  weekStart.setDate(currentDate.getDate() - weekdayMondayBased);
+  return weekStart;
+}
+
+function buildSelectedScrimEvents(gameState: GameStateData): ScrimCalendarEvent[] {
+  const userTeamId = gameState.manager.team_id;
+  if (!userTeamId) return [];
+
+  const userTeam = gameState.teams.find((team) => team.id === userTeamId);
+  if (!userTeam) return [];
+
+  const slotWeekdays = SCRIM_SLOT_WEEKDAYS[userTeam.training_schedule] ?? SCRIM_SLOT_WEEKDAYS.Balanced;
+  const weekStart = getCurrentWeekStart(gameState.clock?.current_date ?? "");
+  if (!weekStart) return [];
+
+  const knownTeamIds = new Set(gameState.teams.map((team) => team.id));
+
+  return slotWeekdays.flatMap((weekday, slotIndex) => {
+    const opponentTeamId = userTeam.weekly_scrim_opponent_ids?.[slotIndex] ?? "";
+    if (!opponentTeamId || opponentTeamId === userTeamId || !knownTeamIds.has(opponentTeamId)) {
+      return [];
+    }
+
+    const date = new Date(weekStart);
+    date.setDate(weekStart.getDate() + weekday);
+    const dateKey = isoDateKey(date);
+
+    return [{
+      id: `scrim-${dateKey}-${slotIndex}-${opponentTeamId}`,
+      dateKey,
+      slotIndex,
+      opponentTeamId,
+    }];
   });
 }
 
@@ -175,6 +232,42 @@ function FixtureChip({
   );
 }
 
+interface ScrimChipProps {
+  scrim: ScrimCalendarEvent;
+  gameState: GameStateData;
+  size?: "compact" | "full";
+}
+
+function ScrimChip({ scrim, gameState, size = "compact" }: ScrimChipProps) {
+  const { t } = useTranslation();
+  const opponentName = getTeamName(gameState.teams, scrim.opponentTeamId);
+  const opponentLogo = getTeamLogoPath(gameState.teams, scrim.opponentTeamId);
+  const isFull = size === "full";
+
+  return (
+    <div
+      className={[
+        "flex items-center gap-1 rounded border border-amber-400/40 bg-amber-500/10 text-amber-700 dark:text-amber-200",
+        isFull ? "px-3 py-2 gap-2" : "px-1 py-0.5",
+      ].join(" ")}
+      title={t("schedule.scrimVs", { team: opponentName, defaultValue: "Scrim vs {{team}}" })}
+    >
+      <Swords className={`shrink-0 ${isFull ? "w-4 h-4" : "w-3 h-3"}`} />
+      {opponentLogo ? (
+        <img
+          src={opponentLogo}
+          alt=""
+          className={`object-contain shrink-0 ${isFull ? "w-5 h-5" : "w-3.5 h-3.5"}`}
+          loading="lazy"
+        />
+      ) : null}
+      <span className={`font-heading font-bold uppercase tracking-wider truncate ${isFull ? "text-xs" : "text-[10px]"}`}>
+        {t("schedule.scrimVs", { team: opponentName, defaultValue: "Scrim vs {{team}}" })}
+      </span>
+    </div>
+  );
+}
+
 export default function ScheduleCalendarView({
   gameState,
   fixtures,
@@ -204,6 +297,16 @@ export default function ScheduleCalendarView({
     });
     return map;
   }, [fixtures, userTeamId]);
+
+  const scrimsByDay = useMemo(() => {
+    const map = new Map<string, ScrimCalendarEvent[]>();
+    buildSelectedScrimEvents(gameState).forEach((scrim) => {
+      const list = map.get(scrim.dateKey) ?? [];
+      list.push(scrim);
+      map.set(scrim.dateKey, list);
+    });
+    return map;
+  }, [gameState]);
 
   const seasonStartKey = useMemo(() => {
     const firstLeagueDate = fixtures
@@ -252,7 +355,12 @@ export default function ScheduleCalendarView({
   const goToday = () =>
     setViewMonth(pickInitialMonth(gameState.clock?.current_date ?? "", fixtures));
 
-  const openDayFixtures = openDayKey ? fixturesByDay.get(openDayKey) ?? [] : [];
+  const openDayEvents: CalendarDayEvent[] = openDayKey
+    ? [
+        ...(fixturesByDay.get(openDayKey) ?? []).map((fixture) => ({ type: "fixture" as const, fixture })),
+        ...(scrimsByDay.get(openDayKey) ?? []).map((scrim) => ({ type: "scrim" as const, scrim })),
+      ]
+    : [];
 
   return (
     <Card>
@@ -304,10 +412,15 @@ export default function ScheduleCalendarView({
             const inMonth = cell.getMonth() === viewMonth.getMonth();
             const isToday = cellKey === todayKey;
             const cellFixtures = fixturesByDay.get(cellKey) ?? [];
+            const cellScrims = scrimsByDay.get(cellKey) ?? [];
+            const cellEvents: CalendarDayEvent[] = [
+              ...cellFixtures.map((fixture) => ({ type: "fixture" as const, fixture })),
+              ...cellScrims.map((scrim) => ({ type: "scrim" as const, scrim })),
+            ];
             const hasUserMatch = cellFixtures.some(
               (f) => f.home_team_id === userTeamId || f.away_team_id === userTeamId,
             );
-            const overflow = cellFixtures.length - MAX_FIXTURES_PER_CELL;
+            const overflow = cellEvents.length - MAX_FIXTURES_PER_CELL;
             const isPlayoffsStart = cellKey === estimatedPlayoffsStartKey;
             const isSeasonStart = cellKey === seasonStartKey;
 
@@ -337,9 +450,9 @@ export default function ScheduleCalendarView({
                   >
                     {cell.getDate()}
                   </span>
-                  {cellFixtures.length > 1 ? (
+                  {cellEvents.length > 1 ? (
                     <span className="text-[9px] text-gray-400 dark:text-gray-500 tabular-nums">
-                      ×{cellFixtures.length}
+                      ×{cellEvents.length}
                     </span>
                   ) : null}
                 </div>
@@ -366,16 +479,24 @@ export default function ScheduleCalendarView({
                       </span>
                     </div>
                   ) : null}
-                  {cellFixtures.slice(0, MAX_FIXTURES_PER_CELL).map((f) => (
-                    <FixtureChip
-                      key={f.id}
-                      fixture={f}
-                      gameState={gameState}
-                      bestOfContext={bestOfContext}
-                      userTeamId={userTeamId}
-                      onOpenFixtureResult={onOpenFixtureResult}
-                    />
-                  ))}
+                  {cellEvents.slice(0, MAX_FIXTURES_PER_CELL).map((event) =>
+                    event.type === "fixture" ? (
+                      <FixtureChip
+                        key={event.fixture.id}
+                        fixture={event.fixture}
+                        gameState={gameState}
+                        bestOfContext={bestOfContext}
+                        userTeamId={userTeamId}
+                        onOpenFixtureResult={onOpenFixtureResult}
+                      />
+                    ) : (
+                      <ScrimChip
+                        key={event.scrim.id}
+                        scrim={event.scrim}
+                        gameState={gameState}
+                      />
+                    ),
+                  )}
                   {overflow > 0 ? (
                     <button
                       type="button"
@@ -392,7 +513,7 @@ export default function ScheduleCalendarView({
         </div>
       </CardBody>
 
-      {openDayKey && openDayFixtures.length > 0 ? (
+      {openDayKey && openDayEvents.length > 0 ? (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           onClick={() => setOpenDayKey(null)}
@@ -420,20 +541,29 @@ export default function ScheduleCalendarView({
               </button>
             </div>
             <div className="flex flex-col gap-2 p-5 overflow-y-auto">
-              {openDayFixtures.map((f) => (
-                <FixtureChip
-                  key={f.id}
-                  fixture={f}
-                  gameState={gameState}
-                  bestOfContext={bestOfContext}
-                  userTeamId={userTeamId}
-                  onOpenFixtureResult={(stored) => {
-                    setOpenDayKey(null);
-                    onOpenFixtureResult(stored);
-                  }}
-                  size="full"
-                />
-              ))}
+              {openDayEvents.map((event) =>
+                event.type === "fixture" ? (
+                  <FixtureChip
+                    key={event.fixture.id}
+                    fixture={event.fixture}
+                    gameState={gameState}
+                    bestOfContext={bestOfContext}
+                    userTeamId={userTeamId}
+                    onOpenFixtureResult={(stored) => {
+                      setOpenDayKey(null);
+                      onOpenFixtureResult(stored);
+                    }}
+                    size="full"
+                  />
+                ) : (
+                  <ScrimChip
+                    key={event.scrim.id}
+                    scrim={event.scrim}
+                    gameState={gameState}
+                    size="full"
+                  />
+                ),
+              )}
             </div>
           </div>
         </div>
