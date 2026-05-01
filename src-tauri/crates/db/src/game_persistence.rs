@@ -201,7 +201,7 @@ mod tests {
 
     #[test]
     fn test_champion_progression_roundtrip_is_preserved() {
-        let db = GameDatabase::open_in_memory().unwrap();
+        let mut db = GameDatabase::open_in_memory().unwrap();
         let mut game = sample_game();
 
         game.champion_masteries = vec![
@@ -240,7 +240,7 @@ mod tests {
         };
 
         GamePersistenceWriter::write_game(&db, &game, "save-1", "Career").unwrap();
-        let loaded = GamePersistenceReader::read_game(&db).unwrap();
+        let loaded = GamePersistenceReader::read_game(&mut db).unwrap();
 
         assert_eq!(loaded.champion_masteries.len(), 2);
         assert_eq!(loaded.champion_masteries[0].champion_id, "Ahri");
@@ -269,7 +269,7 @@ mod tests {
 
     #[test]
     fn test_champion_progression_defaults_when_absent() {
-        let db = GameDatabase::open_in_memory().unwrap();
+        let mut db = GameDatabase::open_in_memory().unwrap();
         let game = sample_game();
 
         GamePersistenceWriter::write_game(&db, &game, "save-1", "Career").unwrap();
@@ -277,7 +277,7 @@ mod tests {
             .execute("DELETE FROM champion_progression_state", [])
             .unwrap();
 
-        let loaded = GamePersistenceReader::read_game(&db).unwrap();
+        let loaded = GamePersistenceReader::read_game(&mut db).unwrap();
 
         assert!(loaded.champion_masteries.is_empty());
         assert_eq!(loaded.champion_patch.current_patch, 0);

@@ -3,5 +3,6 @@
 -- This migration clears the champion table data so it can be reseeded correctly.
 -- The application-level seed function (seed_from_json) will re-run on next game load
 -- because it checks if the table is empty.
-
-DELETE FROM champions;
+-- NOTE: This migration is now handled programmatically in migrations.rs (up_with_func)
+-- to safely check if the table exists before deleting.
+-- This file is kept for reference but is no longer used.

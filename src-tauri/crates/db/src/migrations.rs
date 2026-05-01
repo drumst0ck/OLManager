@@ -68,9 +68,31 @@ pub fn all_migrations() -> Migrations<'static> {
         // V30: Champions table for world champions catalog
         M::up(include_str!("sql/v030_champions_table.sql")),
         // V31: Fix champion counterpicks/synergies seed (was storing all data in every champion)
-        M::up(include_str!("sql/v031_fix_champion_seed.sql")),
+        // Uses up_with_hook to safely check if table exists before deleting
+        M::up_with_hook("SELECT 1;", |tx: &rusqlite::Transaction| {
+            let exists: bool = tx.query_row(
+                "SELECT COUNT(*) > 0 FROM sqlite_master WHERE type='table' AND name='champions'",
+                [],
+                |row| row.get(0),
+            )?;
+            if exists {
+                tx.execute("DELETE FROM champions", [])?;
+            }
+            Ok(())
+        }),
         // V32: Re-seed champions with fixed name generation (camelCase bug: 'Taliyah' -> '. aliyah')
-        M::up(include_str!("sql/v032_fix_champion_names.sql")),
+        // Also conditional — only deletes if table exists
+        M::up_with_hook("SELECT 1;", |tx: &rusqlite::Transaction| {
+            let exists: bool = tx.query_row(
+                "SELECT COUNT(*) > 0 FROM sqlite_master WHERE type='table' AND name='champions'",
+                [],
+                |row| row.get(0),
+            )?;
+            if exists {
+                tx.execute("DELETE FROM champions", [])?;
+            }
+            Ok(())
+        }),
     ])
 }
 
