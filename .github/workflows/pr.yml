@@ -65,9 +65,8 @@ jobs:
         run: cargo check --workspace
 
   frontend-full:
-    name: frontend-full-experimental
+    name: frontend-tests-and-build
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -89,9 +88,8 @@ jobs:
         run: npm run build:types
 
   rust-full:
-    name: rust-full-experimental
+    name: rust-tests-and-clippy
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
     defaults:
       run:
         working-directory: src-tauri
