@@ -1,13 +1,14 @@
 use chrono::Utc;
 use domain::stats::StatsState;
+use log::debug;
 
 use ofm_core::clock::GameClock;
 use ofm_core::game::{BoardObjective, Game, ObjectiveType, ScoutingAssignment};
 
 use crate::game_database::GameDatabase;
 use crate::repositories::{
-    champion_progression_repo, league_repo, manager_repo, message_repo, meta_repo, news_repo,
-    objective_repo, player_repo, scouting_repo, staff_repo, stats_repo, team_repo,
+    champion_progression_repo, champion_repo, league_repo, manager_repo, message_repo, meta_repo,
+    news_repo, objective_repo, player_repo, scouting_repo, staff_repo, stats_repo, team_repo,
 };
 
 pub struct GamePersistenceWriter;
@@ -71,11 +72,11 @@ impl GamePersistenceWriter {
             .collect();
         scouting_repo::upsert_scouting_list(conn, &scouting_rows)?;
 
-        champion_progression_repo::upsert_state(
-            conn,
-            &game.champion_masteries,
-            &game.champion_patch,
-        )?;
+        // Seed champions from embedded JSON
+        let json_content = include_str!("../../../../data/lec/draft/champions.json");
+        if let Err(e) = champion_repo::seed_from_json(conn, json_content) {
+            log::warn!("Failed to seed champions: {}", e);
+        }
 
         Ok(())
     }
@@ -90,30 +91,57 @@ impl GamePersistenceWriter {
 pub struct GamePersistenceReader;
 
 impl GamePersistenceReader {
-    pub fn read_game(db: &GameDatabase) -> Result<Game, String> {
+    pub fn read_game(db: &mut GameDatabase) -> Result<Game, String> {
+        debug!("[read_game] START - reading game from database");
+        // Ensure champions table exists and is seeded (for old saves)
+        debug!("[read_game] calling ensure_champions");
+        db.ensure_champions()?;
+        debug!("[read_game] ensure_champions returned, getting conn");
+
         let conn = db.conn();
+        debug!("[read_game] conn obtained, loading meta");
 
         let meta = meta_repo::load_meta(conn)?
             .ok_or_else(|| "No game_meta found in database".to_string())?;
+        debug!("[read_game] meta loaded: save_name={}", meta.save_name);
 
+        debug!("[read_game] parsing start_date: {}", meta.start_date);
         let start_date = chrono::DateTime::parse_from_rfc3339(&meta.start_date)
             .map_err(|error| format!("Invalid start_date: {}", error))?
             .with_timezone(&Utc);
+        debug!("[read_game] parsing game_date: {}", meta.game_date);
         let game_date = chrono::DateTime::parse_from_rfc3339(&meta.game_date)
             .map_err(|error| format!("Invalid game_date: {}", error))?
             .with_timezone(&Utc);
+        debug!("[read_game] dates parsed, creating GameClock");
 
         let mut clock = GameClock::new(start_date);
         clock.current_date = game_date;
+        debug!("[read_game] loading manager: {}", meta.manager_id);
 
         let manager = manager_repo::load_manager(conn, &meta.manager_id)?
             .ok_or_else(|| format!("Manager '{}' not found", meta.manager_id))?;
+        debug!("[read_game] manager loaded, loading teams");
+
         let teams = team_repo::load_all_teams(conn)?;
+        debug!("[read_game] teams loaded: count={}", teams.len());
+        debug!("[read_game] loading players");
+
         let players = player_repo::load_all_players(conn)?;
+        debug!("[read_game] players loaded: count={}", players.len());
+        debug!("[read_game] loading staff");
+
         let staff = staff_repo::load_all_staff(conn)?;
+        debug!("[read_game] loading messages");
+
         let messages = message_repo::load_all_messages(conn)?;
+        debug!("[read_game] loading news");
+
         let news = news_repo::load_all_news(conn)?;
+        debug!("[read_game] loading league");
+
         let league = league_repo::load_league(conn)?;
+        debug!("[read_game] league loaded");
 
         let objective_rows = objective_repo::load_all_objectives(conn)?;
         let board_objectives: Vec<BoardObjective> = objective_rows
@@ -198,7 +226,7 @@ mod tests {
 
     #[test]
     fn test_champion_progression_roundtrip_is_preserved() {
-        let db = GameDatabase::open_in_memory().unwrap();
+        let mut db = GameDatabase::open_in_memory().unwrap();
         let mut game = sample_game();
 
         game.champion_masteries = vec![
@@ -237,7 +265,7 @@ mod tests {
         };
 
         GamePersistenceWriter::write_game(&db, &game, "save-1", "Career").unwrap();
-        let loaded = GamePersistenceReader::read_game(&db).unwrap();
+        let loaded = GamePersistenceReader::read_game(&mut db).unwrap();
 
         assert_eq!(loaded.champion_masteries.len(), 2);
         assert_eq!(loaded.champion_masteries[0].champion_id, "Ahri");
@@ -266,7 +294,7 @@ mod tests {
 
     #[test]
     fn test_champion_progression_defaults_when_absent() {
-        let db = GameDatabase::open_in_memory().unwrap();
+        let mut db = GameDatabase::open_in_memory().unwrap();
         let game = sample_game();
 
         GamePersistenceWriter::write_game(&db, &game, "save-1", "Career").unwrap();
@@ -274,7 +302,7 @@ mod tests {
             .execute("DELETE FROM champion_progression_state", [])
             .unwrap();
 
-        let loaded = GamePersistenceReader::read_game(&db).unwrap();
+        let loaded = GamePersistenceReader::read_game(&mut db).unwrap();
 
         assert!(loaded.champion_masteries.is_empty());
         assert_eq!(loaded.champion_patch.current_patch, 0);

@@ -1,5 +1,6 @@
 use domain::player::{Footedness, Player, PlayerAttributes};
 use domain::team::TrainingFocus;
+use log::{debug, error};
 use rusqlite::{params, Connection};
 
 /// Insert or replace a player row.
@@ -128,26 +129,71 @@ fn parse_training_focus(s: &str) -> Option<TrainingFocus> {
 
 /// Load all players.
 pub fn load_all_players(conn: &Connection) -> Result<Vec<Player>, String> {
-    let mut stmt = conn
-        .prepare(
-            "SELECT id, match_name, full_name, date_of_birth, nationality, football_nation, birth_country, position,
+    debug!("[load_all_players] preparing query");
+    let query = "SELECT id, match_name, full_name, date_of_birth, nationality, football_nation, birth_country, position,
                     attributes, condition, morale, injury, team_id, traits,
                     contract_end, wage, market_value, stats, career,
                     transfer_listed, loan_listed, transfer_offers, alternate_positions,
                     natural_position, training_focus, morale_core, footedness, weak_foot, fitness,
                     potential_base, potential_revealed, potential_research_started_on, potential_research_eta_days, profile_image_url
-             FROM players",
-        )
-        .map_err(|e| format!("Failed to prepare players query: {}", e))?;
+             FROM players";
+
+    // Try to prepare - if it fails, show which column is missing
+    let mut stmt = match conn.prepare(query) {
+        Ok(s) => s,
+        Err(e) => {
+            // Try to identify which column is missing
+            let error_msg = format!("{}", e);
+            if error_msg.contains("no such column") {
+                // Try each column to find the missing one
+                let test_columns = [
+                    "profile_image_url",
+                    "potential_research_eta_days",
+                    "potential_research_started_on",
+                    "potential_revealed",
+                    "potential_base",
+                ];
+                for col in test_columns {
+                    if conn
+                        .query_row(&format!("SELECT {} FROM players LIMIT 1", col), [], |_| {
+                            Ok(())
+                        })
+                        .is_err()
+                    {
+                        error!("[load_all_players] MISSING COLUMN: {}", col);
+                        return Err(format!("Database is missing column '{}'. Try running migrations or the save may be incompatible.", col));
+                    }
+                }
+            }
+            return Err(format!("Failed to prepare players query: {}", e));
+        }
+    };
+    debug!("[load_all_players] query prepared, executing");
 
     let rows = stmt
         .query_map([], row_to_player)
         .map_err(|e| format!("Failed to query players: {}", e))?;
+    debug!("[load_all_players] query executed, iterating rows");
 
     let mut players = Vec::new();
-    for row in rows {
-        players.push(row.map_err(|e| format!("Failed to read player row: {}", e))?);
+    for (idx, row) in rows.enumerate() {
+        match row {
+            Ok(player) => {
+                players.push(player);
+                if idx % 50 == 0 {
+                    debug!("[load_all_players] loaded {} players", idx + 1);
+                }
+            }
+            Err(e) => {
+                error!(
+                    "[load_all_players] failed to read player row {}: {}",
+                    idx, e
+                );
+                return Err(format!("Failed to read player row {}: {}", idx, e));
+            }
+        }
     }
+    debug!("[load_all_players] done, total players: {}", players.len());
     Ok(players)
 }
 

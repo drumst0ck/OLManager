@@ -390,6 +390,20 @@ export interface ChampionPatchStateData {
   rng_seed?: number;
 }
 
+/**
+ * Champion data from the backend - represents a League of Legends champion
+ */
+export interface ChampionData {
+  id: number;
+  name: string;
+  champion_key: string;
+  roles_json: string;
+  counterpicks_json: string | null;
+  synergies_json: string | null;
+  image_tile_url: string | null;
+  image_splash_url: string | null;
+}
+
 export interface TransferOfferData {
   id: string;
   from_team_id: string;
@@ -700,4 +714,5 @@ export interface GameStateData {
   season_context?: SeasonContextData;
   champion_masteries?: ChampionMasteryEntryData[];
   champion_patch?: ChampionPatchStateData;
+  champions?: ChampionData[];
 }
