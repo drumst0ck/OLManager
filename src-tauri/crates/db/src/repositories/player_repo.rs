@@ -122,17 +122,44 @@ fn parse_training_focus(s: &str) -> Option<TrainingFocus> {
 /// Load all players.
 pub fn load_all_players(conn: &Connection) -> Result<Vec<Player>, String> {
     debug!("[load_all_players] preparing query");
-    let mut stmt = conn
-        .prepare(
-            "SELECT id, match_name, full_name, date_of_birth, nationality, football_nation, birth_country, position,
+    let query = "SELECT id, match_name, full_name, date_of_birth, nationality, football_nation, birth_country, position,
                     attributes, condition, morale, injury, team_id, traits,
                     contract_end, wage, market_value, stats, career,
                     transfer_listed, loan_listed, transfer_offers, alternate_positions,
                     natural_position, training_focus, morale_core, footedness, weak_foot, fitness,
                     potential_base, potential_revealed, potential_research_started_on, potential_research_eta_days, profile_image_url
-             FROM players",
-        )
-        .map_err(|e| format!("Failed to prepare players query: {}", e))?;
+             FROM players";
+
+    // Try to prepare - if it fails, show which column is missing
+    let mut stmt = match conn.prepare(query) {
+        Ok(s) => s,
+        Err(e) => {
+            // Try to identify which column is missing
+            let error_msg = format!("{}", e);
+            if error_msg.contains("no such column") {
+                // Try each column to find the missing one
+                let test_columns = [
+                    "profile_image_url",
+                    "potential_research_eta_days",
+                    "potential_research_started_on",
+                    "potential_revealed",
+                    "potential_base",
+                ];
+                for col in test_columns {
+                    if conn
+                        .query_row(&format!("SELECT {} FROM players LIMIT 1", col), [], |_| {
+                            Ok(())
+                        })
+                        .is_err()
+                    {
+                        error!("[load_all_players] MISSING COLUMN: {}", col);
+                        return Err(format!("Database is missing column '{}'. Try running migrations or the save may be incompatible.", col));
+                    }
+                }
+            }
+            return Err(format!("Failed to prepare players query: {}", e));
+        }
+    };
     debug!("[load_all_players] query prepared, executing");
 
     let rows = stmt
