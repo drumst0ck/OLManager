@@ -402,105 +402,107 @@ pub enum TransferOfferStatus {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PlayerTrait {
-    // Physical
-    Speedster, // pace >= 85
-    Tank,      // strength >= 85 && stamina >= 75
-    Agile,     // agility >= 85
-    Tireless,  // stamina >= 90
-    // Technical
-    Playmaker,    // passing >= 80 && vision >= 80
-    Sharpshooter, // shooting >= 85
-    Dribbler,     // dribbling >= 85
-    BallWinner,   // tackling >= 80 && aggression >= 70
-    Rock,         // defending >= 85 && positioning >= 75
+    // Mechanics
+    #[serde(alias = "Speedster")]
+    LightningQuick, // mechanics >= 85
+    #[serde(alias = "Tank")]
+    Immovable, // durability >= 85 && stamina >= 75
+    #[serde(alias = "Agile")]
+    NimbleFingers, // mechanics >= 85
+    #[serde(alias = "Tireless")]
+    MarathonMan, // stamina >= 90
+    // Game Knowledge
+    #[serde(alias = "Playmaker")]
+    GameManager, // game_knowledge >= 80 && macro_play >= 80
+    #[serde(alias = "Sharpshooter")]
+    Lethal, // laning >= 85
+    #[serde(alias = "Dribbler")]
+    KiteMaster, // mechanics >= 85
+    #[serde(alias = "BallWinner")]
+    Interceptor, // teamfight >= 80 && aggression >= 70
+    #[serde(alias = "Rock")]
+    Sentinel, // laning >= 85 && macro_play >= 75
     // Mental
-    Leader,     // leadership >= 85 && teamwork >= 75
-    CoolHead,   // composure >= 85 && decisions >= 80
-    Visionary,  // vision >= 85
-    HotHead,    // aggression >= 85 && composure < 50
-    TeamPlayer, // teamwork >= 85
-    // Goalkeeper
-    SafeHands,       // handling >= 85 (GK only)
-    CatReflexes,     // reflexes >= 85 (GK only)
-    AerialDominance, // aerial >= 85
-    // Combo / Special
-    CompleteForward, // FWD: shooting >= 75 && dribbling >= 75 && pace >= 70 && strength >= 70
-    Engine,          // MID: stamina >= 85 && pace >= 70 && teamwork >= 75
-    SetPieceSpecialist, // passing >= 80 && shooting >= 75 && vision >= 75
+    #[serde(alias = "Leader")]
+    ShotCaller, // shotcalling >= 85 && teamfight >= 75
+    #[serde(alias = "CoolHead")]
+    IceCold, // consistency >= 85 && decisions >= 80
+    #[serde(alias = "Visionary")]
+    Visionary, // macro_play >= 85
+    #[serde(alias = "HotHead")]
+    Intimidator, // aggression >= 85 && discipline < 50
+    #[serde(alias = "TeamPlayer")]
+    TeamPlayer, // teamfight >= 85
+    // Special
+    #[serde(alias = "CompleteForward")]
+    HyperCarry, // laning >= 75 && mechanics >= 75 && consistency >= 70
+    #[serde(alias = "Engine")]
+    Workhorse, // stamina >= 85 && consistency >= 70 && teamfight >= 75
+    #[serde(alias = "SetPieceSpecialist")]
+    MacroSpecialist, // game_knowledge >= 80 && laning >= 75 && macro_play >= 75
 }
 
 /// Derive traits purely from a player's attributes (position-independent).
 pub fn compute_traits(attrs: &PlayerAttributes, _position: &Position) -> Vec<PlayerTrait> {
     let mut traits = Vec::new();
 
-    // Physical
+    // Mechanics
     if attrs.pace >= 85 {
-        traits.push(PlayerTrait::Speedster);
+        traits.push(PlayerTrait::LightningQuick);
     }
     if attrs.strength >= 85 && attrs.stamina >= 75 {
-        traits.push(PlayerTrait::Tank);
+        traits.push(PlayerTrait::Immovable);
     }
     if attrs.agility >= 85 {
-        traits.push(PlayerTrait::Agile);
+        traits.push(PlayerTrait::NimbleFingers);
     }
     if attrs.stamina >= 90 {
-        traits.push(PlayerTrait::Tireless);
+        traits.push(PlayerTrait::MarathonMan);
     }
 
-    // Technical
+    // Game Knowledge
     if attrs.passing >= 80 && attrs.vision >= 80 {
-        traits.push(PlayerTrait::Playmaker);
+        traits.push(PlayerTrait::GameManager);
     }
     if attrs.shooting >= 85 {
-        traits.push(PlayerTrait::Sharpshooter);
+        traits.push(PlayerTrait::Lethal);
     }
     if attrs.dribbling >= 85 {
-        traits.push(PlayerTrait::Dribbler);
+        traits.push(PlayerTrait::KiteMaster);
     }
     if attrs.tackling >= 80 && attrs.aggression >= 70 {
-        traits.push(PlayerTrait::BallWinner);
+        traits.push(PlayerTrait::Interceptor);
     }
     if attrs.defending >= 85 && attrs.positioning >= 75 {
-        traits.push(PlayerTrait::Rock);
+        traits.push(PlayerTrait::Sentinel);
     }
 
     // Mental
     if attrs.leadership >= 85 && attrs.teamwork >= 75 {
-        traits.push(PlayerTrait::Leader);
+        traits.push(PlayerTrait::ShotCaller);
     }
     if attrs.composure >= 85 && attrs.decisions >= 80 {
-        traits.push(PlayerTrait::CoolHead);
+        traits.push(PlayerTrait::IceCold);
     }
     if attrs.vision >= 85 {
         traits.push(PlayerTrait::Visionary);
     }
     if attrs.aggression >= 85 && attrs.composure < 50 {
-        traits.push(PlayerTrait::HotHead);
+        traits.push(PlayerTrait::Intimidator);
     }
     if attrs.teamwork >= 85 {
         traits.push(PlayerTrait::TeamPlayer);
     }
 
-    // Goalkeeper-oriented (any player with high GK stats can earn these)
-    if attrs.handling >= 85 {
-        traits.push(PlayerTrait::SafeHands);
-    }
-    if attrs.reflexes >= 85 {
-        traits.push(PlayerTrait::CatReflexes);
-    }
-    if attrs.aerial >= 85 {
-        traits.push(PlayerTrait::AerialDominance);
-    }
-
-    // Combo / Special — purely attribute-based
+    // Special — purely attribute-based
     if attrs.shooting >= 75 && attrs.dribbling >= 75 && attrs.pace >= 70 && attrs.strength >= 70 {
-        traits.push(PlayerTrait::CompleteForward);
+        traits.push(PlayerTrait::HyperCarry);
     }
     if attrs.stamina >= 85 && attrs.pace >= 70 && attrs.teamwork >= 75 {
-        traits.push(PlayerTrait::Engine);
+        traits.push(PlayerTrait::Workhorse);
     }
     if attrs.passing >= 80 && attrs.shooting >= 75 && attrs.vision >= 75 {
-        traits.push(PlayerTrait::SetPieceSpecialist);
+        traits.push(PlayerTrait::MacroSpecialist);
     }
 
     traits
