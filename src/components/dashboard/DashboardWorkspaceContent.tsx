@@ -71,8 +71,8 @@ export default function DashboardWorkspaceContent({
         </div>
       )}
 
-      {/* Exclusive rendering: champion page takes priority over profiles */}
-      {viewingChampionKey ? (
+      {/* Champion page - only show when no player/team is selected */}
+      {viewingChampionKey && !selectedPlayer && !selectedTeam ? (
         <ChampionPage
           championKey={viewingChampionKey}
           onClose={onCloseChampion}
