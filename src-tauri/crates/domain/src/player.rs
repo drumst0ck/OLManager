@@ -1,9 +1,13 @@
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "typescript")]
+use ts_rs::TS;
 
 // Re-export both LolRole and Position for backward compatibility
 pub use crate::stats::{LolRole, Position};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct Player {
     pub id: String,
     pub match_name: String,
