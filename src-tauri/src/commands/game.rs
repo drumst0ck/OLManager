@@ -22,6 +22,7 @@ use ofm_core::state::StateManager;
 use crate::application::game_setup::avatar;
 use crate::error::AppError;
 use crate::SaveManagerState;
+use validator::Validate;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct TeamSelectionData {
@@ -2258,6 +2259,30 @@ pub async fn load_manager_avatar(
     Ok(data_url)
 }
 
+/// Validated input for updating manager profile fields.
+#[derive(Debug, validator::Validate)]
+struct ManagerProfileInput {
+    #[validate(length(max = 30))]
+    nickname: Option<String>,
+    #[validate(length(max = 30))]
+    first_name: Option<String>,
+    #[validate(length(max = 30))]
+    last_name: Option<String>,
+    #[validate(custom(function = "validate_date_format"))]
+    dob: Option<String>,
+    #[validate(length(max = 3))]
+    nationality: Option<String>,
+    avatar_path: Option<String>,
+}
+
+fn validate_date_format(date: &str) -> Result<(), validator::ValidationError> {
+    if chrono::NaiveDate::parse_from_str(date, "%Y-%m-%d").is_ok() {
+        Ok(())
+    } else {
+        Err(validator::ValidationError::new("invalid_date_format"))
+    }
+}
+
 /// Update manager profile fields (nickname, name, dob, nationality, avatar)
 #[tauri::command]
 pub async fn update_manager_profile(
@@ -2268,34 +2293,46 @@ pub async fn update_manager_profile(
     dob: Option<String>,
     nationality: Option<String>,
     avatar_path: Option<String>,
-) -> Result<(), String> {
+) -> Result<(), AppError> {
     info!("[cmd] update_manager_profile");
+
+    // Validate input
+    let input = ManagerProfileInput {
+        nickname: nickname.clone(),
+        first_name: first_name.clone(),
+        last_name: last_name.clone(),
+        dob: dob.clone(),
+        nationality: nationality.clone(),
+        avatar_path: avatar_path.clone(),
+    };
+    input.validate().map_err(|e| AppError::Validation(format!("Validation failed: {}", e)))?;
 
     let mut game = state
         .get_game(|g: &Game| g.clone())
-        .ok_or("No active game session".to_string())?;
+        .ok_or(AppError::Session("No active game session".into()))?;
 
     // Update only the provided fields (not None)
     if let Some(nick) = nickname {
-        game.manager.nickname = nick.trim().to_string();
+        let trimmed = nick.trim().to_string();
+        if !trimmed.is_empty() {
+            game.manager.nickname = trimmed;
+        }
     }
     if let Some(first) = first_name {
         let trimmed = first.trim().to_string();
-        if !trimmed.is_empty() && trimmed.len() <= 30 {
+        if !trimmed.is_empty() {
             game.manager.first_name = trimmed;
         }
     }
     if let Some(last) = last_name {
         let trimmed = last.trim().to_string();
-        if !trimmed.is_empty() && trimmed.len() <= 30 {
+        if !trimmed.is_empty() {
             game.manager.last_name = trimmed;
         }
     }
     if let Some(date) = dob {
-        // Validate date format
-        if chrono::NaiveDate::parse_from_str(&date, "%Y-%m-%d").is_ok() {
-            game.manager.date_of_birth = date;
-        }
+        // Already validated by validator custom function
+        game.manager.date_of_birth = date;
     }
     if let Some(nat) = nationality {
         let trimmed = nat.trim().to_string();
