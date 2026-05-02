@@ -192,7 +192,7 @@ pub struct MatchConfig {
 impl Default for MatchConfig {
     fn default() -> Self {
         Self {
-            home_advantage: 1.08,
+            home_advantage: 1.03,
             shot_accuracy_base: 0.45,
             fatigue_per_minute: 0.20,
         }
