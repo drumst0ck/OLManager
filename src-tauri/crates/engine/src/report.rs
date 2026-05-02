@@ -14,19 +14,9 @@ pub enum MatchReportEndReason {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct TeamStats {
     #[serde(default, skip_serializing)]
-    pub goals: u8,
-    #[serde(default, skip_serializing)]
     pub shots: u16,
     #[serde(default, skip_serializing)]
     pub shots_on_target: u16,
-    #[serde(default, skip_serializing)]
-    pub yellow_cards: u16,
-    #[serde(default, skip_serializing)]
-    pub red_cards: u16,
-    #[serde(default, skip_serializing)]
-    pub corners: u16,
-    #[serde(default, skip_serializing)]
-    pub free_kicks: u16,
     pub kills: u16,
     pub deaths: u16,
     pub gold_earned: u32,
@@ -304,8 +294,7 @@ impl MatchReport {
             Side::Home => (1, 0),
             Side::Away => (0, 1),
         };
-        home_stats.goals = home_wins.into();
-        away_stats.goals = away_wins.into();
+
 
         Self {
             home_goals: home_wins,

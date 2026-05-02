@@ -245,7 +245,7 @@ fn resolve_shot<R: Rng>(ctx: &mut MatchContext, minute: u8, att_side: Side, rng:
     }
 
     let conversion =
-        (ctx.config.goal_conversion_base + (shoot_rating - gk_rating) / 150.0).clamp(0.10, 0.70);
+        (0.30 + (shoot_rating - gk_rating) / 150.0).clamp(0.10, 0.70);
 
     if rng.random_range(0.0..1.0f64) < conversion {
         ctx.emit(
@@ -253,7 +253,7 @@ fn resolve_shot<R: Rng>(ctx: &mut MatchContext, minute: u8, att_side: Side, rng:
                 .with_player(&shooter.id)
                 .with_secondary(&assister.id),
         );
-        ctx.add_goal(att_side);
+        ctx.add_score(att_side);
     } else {
         ctx.emit(
             MatchEvent::new(minute, EventType::ShotSaved, att_side, zone).with_player(&shooter.id),
