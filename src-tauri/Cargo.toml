@@ -4,6 +4,7 @@ version = "0.1.2"
 description = "Open League Manager"
 authors = ["KOI Noboris Development Team <noboriskoi@gmail.com>"]
 edition = "2021"
+default-run = "openleaguemanager"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
