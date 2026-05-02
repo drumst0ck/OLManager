@@ -921,13 +921,6 @@ export default function MatchSimulation() {
     };
   }, [effectiveMatchMode, navigate, routeState?.fixtureIndex]);
 
-  // Skip pre-match for spectators
-  useEffect(() => {
-    if (isSpectator && stage === "prematch") {
-      setStage("draft");
-    }
-  }, [isSpectator, stage]);
-
   const currentFixture =
     gameState && snapshot
       ? resolveMatchFixture(gameState, snapshot, routeState?.fixtureIndex)
