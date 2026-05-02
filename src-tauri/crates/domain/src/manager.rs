@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "typescript")]
+use ts_rs::TS;
 
 fn default_fan_approval() -> u8 {
     50
@@ -9,6 +11,8 @@ fn default_nickname() -> String {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct Manager {
     pub id: String,
     #[serde(default = "default_nickname")]
@@ -40,6 +44,8 @@ pub struct Manager {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct ManagerCareerStats {
     pub matches_managed: u32,
     pub wins: u32,
@@ -49,6 +55,8 @@ pub struct ManagerCareerStats {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct ManagerCareerEntry {
     pub team_id: String,
     pub team_name: String,

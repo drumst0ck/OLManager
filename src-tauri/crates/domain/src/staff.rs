@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "typescript")]
+use ts_rs::TS;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct Staff {
     pub id: String,
     pub first_name: String,
@@ -29,6 +33,8 @@ pub struct Staff {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum StaffRole {
     AssistantManager,
     Coach,
@@ -37,6 +43,8 @@ pub enum StaffRole {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum CoachingSpecialization {
     Fitness,     // Boosts Physical training
     Technique,   // Boosts Technical training
@@ -48,6 +56,8 @@ pub enum CoachingSpecialization {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct StaffAttributes {
     pub coaching: u8,
     pub judging_ability: u8,

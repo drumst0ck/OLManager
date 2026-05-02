@@ -94,6 +94,8 @@ pub struct Player {
 /// Footedness is deprecated - LoL roles are lane-agnostic
 /// Kept for backward compatibility with legacy save files
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum Footedness {
     Left,
     #[default]
@@ -102,6 +104,8 @@ pub enum Footedness {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct PlayerAttributes {
     // Physical
     pub pace: u8,
@@ -156,12 +160,16 @@ fn default_potential_base() -> u8 {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct Injury {
     pub name: String,
     pub days_remaining: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum PlayerIssueCategory {
     Contract,
     PlayingTime,
@@ -169,25 +177,32 @@ pub enum PlayerIssueCategory {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct PlayerIssue {
     pub category: PlayerIssueCategory,
     pub severity: u8,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 #[serde(default)]
-#[derive(Default)]
 pub struct RecentTreatmentMemory {
     pub action_key: String,
     pub times_recently_used: u8,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum PlayerPromiseKind {
     PlayingTime,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum RenewalSessionStatus {
     #[default]
     Idle,
@@ -198,6 +213,8 @@ pub enum RenewalSessionStatus {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum RenewalSessionOutcome {
     #[default]
     None,
@@ -209,6 +226,8 @@ pub enum RenewalSessionOutcome {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 #[serde(default)]
 pub struct ContractRenewalState {
     pub status: RenewalSessionStatus,
@@ -233,6 +252,8 @@ impl Default for ContractRenewalState {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 #[serde(default)]
 pub struct PlayerPromise {
     pub kind: PlayerPromiseKind,
@@ -249,6 +270,8 @@ impl Default for PlayerPromise {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 #[serde(default)]
 pub struct PlayerMoraleCore {
     pub manager_trust: u8,
@@ -289,6 +312,8 @@ fn default_transfer_offer_destination_team_id() -> Option<String> {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 #[serde(default)]
 pub struct PlayerSeasonStats {
     pub appearances: u32,
@@ -306,6 +331,8 @@ pub struct PlayerSeasonStats {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct CareerEntry {
     pub season: u32,
     pub team_id: String,
@@ -316,6 +343,8 @@ pub struct CareerEntry {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct TransferOffer {
     pub id: String,
     pub from_team_id: String,
@@ -336,6 +365,8 @@ pub struct TransferOffer {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum TransferOfferStatus {
     Pending,
     Accepted,
@@ -344,6 +375,8 @@ pub enum TransferOfferStatus {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum PlayerTrait {
     // Mechanics
     #[serde(alias = "Speedster")]

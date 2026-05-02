@@ -44,4 +44,4 @@ validator = { version = "0.19", features = ["derive"] }
 ts-rs = { version = "10", optional = true, features = ["serde-compat"] }
 
 [features]
-typescript = ["ts-rs", "ofm_core/typescript"]
+typescript = ["ts-rs", "domain/typescript", "ofm_core/typescript"]

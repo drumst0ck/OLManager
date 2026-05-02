@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "typescript")]
+use ts_rs::TS;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct Team {
     pub id: String,
     pub name: String,
@@ -90,6 +94,8 @@ pub struct Team {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum TeamKind {
     #[default]
     Main,
@@ -97,6 +103,8 @@ pub enum TeamKind {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct AcademyMetadata {
     pub lifecycle: AcademyLifecycle,
     pub erl_assignment: ErlAssignment,
@@ -117,6 +125,8 @@ pub struct AcademyMetadata {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum AcademyLifecycle {
     Planned,
     #[default]
@@ -124,6 +134,8 @@ pub enum AcademyLifecycle {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct ErlAssignment {
     pub erl_league_id: String,
     pub country_rule: ErlAssignmentRule,
@@ -145,12 +157,16 @@ fn is_zero_i64(value: &i64) -> bool {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum ErlAssignmentRule {
     Domestic,
     Fallback,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct LolTactics {
     #[serde(default)]
     pub strong_side: StrongSide,
@@ -167,6 +183,8 @@ pub struct LolTactics {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum StrongSide {
     Top,
     Mid,
@@ -175,6 +193,8 @@ pub enum StrongSide {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum GameTiming {
     Early,
     #[default]
@@ -183,6 +203,8 @@ pub enum GameTiming {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum JungleStyle {
     Ganker,
     Invader,
@@ -192,6 +214,8 @@ pub enum JungleStyle {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum JunglePathing {
     #[default]
     TopToBot,
@@ -199,6 +223,8 @@ pub enum JunglePathing {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum FightPlan {
     #[default]
     FrontToBack,
@@ -208,6 +234,8 @@ pub enum FightPlan {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum SupportRoaming {
     #[default]
     Lane,
@@ -216,12 +244,16 @@ pub enum SupportRoaming {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct TeamRoles {
     pub captain: Option<String>,
     pub shotcaller: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum TrainingFocus {
     #[default]
     #[serde(rename = "Scrims", alias = "Physical", alias = "General")]
@@ -396,6 +428,8 @@ mod academy_team_metadata_tests {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum TrainingIntensity {
     Low,
     #[default]
@@ -406,6 +440,8 @@ pub enum TrainingIntensity {
 /// Weekly training schedule controlling how many days per week are training vs rest.
 /// Rest days give full condition recovery with no training cost.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum TrainingSchedule {
     /// 6 training days, 1 rest (Sunday). Max growth, minimal recovery.
     Intense,
@@ -443,6 +479,8 @@ impl TrainingSchedule {
 /// A named training group with its own focus. Players in a group train
 /// with the group's focus instead of the team-wide default.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct TrainingGroup {
     pub id: String,
     pub name: String,
@@ -451,6 +489,8 @@ pub struct TrainingGroup {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct ScrimSlotResult {
     pub week_key: String,
     pub slot_index: u8,
@@ -461,12 +501,16 @@ pub struct ScrimSlotResult {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct TeamColors {
     pub primary: String,
     pub secondary: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum PlayStyle {
     Balanced,
     Attacking,
@@ -477,6 +521,8 @@ pub enum PlayStyle {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct TeamSeasonRecord {
     pub season: u32,
     pub league_position: u32,
@@ -489,11 +535,15 @@ pub struct TeamSeasonRecord {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum FinancialTransactionKind {
     PrizeMoney,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct FinancialTransaction {
     pub date: String,
     pub description: String,
@@ -502,6 +552,8 @@ pub struct FinancialTransaction {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum SponsorshipBonusCriterion {
     LeaguePosition {
         max_position: u32,
@@ -514,6 +566,8 @@ pub enum SponsorshipBonusCriterion {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 #[serde(default)]
 pub struct Sponsorship {
     pub sponsor_name: String,
@@ -523,6 +577,8 @@ pub struct Sponsorship {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum FacilityType {
     Training,
     Medical,
@@ -530,6 +586,8 @@ pub enum FacilityType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 #[serde(default)]
 pub struct Facilities {
     #[serde(
@@ -563,6 +621,8 @@ fn is_default_main_hub_level(level: &u8) -> bool {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum MainFacilityModuleKind {
     ScrimsRoom,
     AnalysisRoom,
@@ -573,6 +633,8 @@ pub enum MainFacilityModuleKind {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub enum MainFacilityModuleLevelSource {
     Training,
     Medical,
@@ -581,6 +643,8 @@ pub enum MainFacilityModuleLevelSource {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct MainFacilityModuleDefinition {
     pub kind: MainFacilityModuleKind,
     pub level_source: MainFacilityModuleLevelSource,
@@ -654,12 +718,16 @@ pub fn main_facility_module_catalog() -> &'static [MainFacilityModuleDefinition]
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct MainFacilityModuleView {
     pub kind: MainFacilityModuleKind,
     pub level: u8,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "typescript", derive(TS))]
+#[cfg_attr(feature = "typescript", ts(export))]
 pub struct MainFacilityHubView {
     pub level: u8,
     pub modules: Vec<MainFacilityModuleView>,
