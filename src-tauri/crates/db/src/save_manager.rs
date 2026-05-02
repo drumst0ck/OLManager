@@ -171,7 +171,8 @@ impl SaveManager {
             .clone();
 
         let db_path = self.saves_dir.join(&entry.db_filename);
-        let db = GameDatabase::open(&db_path)?;
+        let mut db = GameDatabase::open(&db_path)?;
+        db.ensure_champions()?;
         let db_arc = Arc::new(Mutex::new(db));
         self.game_db_cache
             .insert(save_id.to_string(), Arc::clone(&db_arc));
