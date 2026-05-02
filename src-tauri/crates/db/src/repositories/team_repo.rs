@@ -148,28 +148,28 @@ fn parse_academy_metadata(json: Option<String>) -> Option<AcademyMetadata> {
 
 fn row_to_team(row: &rusqlite::Row) -> rusqlite::Result<Team> {
     log::debug!("[team_repo] row_to_team: parsing row...");
-    let starting_xi_json: String = row.get(23)?;
-    let team_roles_json: String = row.get(24)?;
-    let form_json: String = row.get(25)?;
-    let history_json: String = row.get(26)?;
-    let training_groups_json: String = row.get(27)?;
-    let weekly_scrims_json: String = row.get(28)?;
-    let scrim_loss_streak: u8 = row.get(29)?;
-    let scrim_weekly_played: u8 = row.get(30)?;
-    let scrim_weekly_wins: u8 = row.get(31)?;
-    let scrim_weekly_losses: u8 = row.get(32)?;
-    let scrim_slot_results_json: String = row.get(33)?;
-    let financial_ledger_json: String = row.get(34)?;
-    let sponsorship_json: String = row.get(35)?;
-    let facilities_json: String = row.get(36)?;
+    let starting_xi_json: String = row.get(22)?;
+    let team_roles_json: String = row.get(23)?;
+    let form_json: String = row.get(24)?;
+    let history_json: String = row.get(25)?;
+    let training_groups_json: String = row.get(26)?;
+    let weekly_scrims_json: String = row.get(27)?;
+    let scrim_loss_streak: u8 = row.get(28)?;
+    let scrim_weekly_played: u8 = row.get(29)?;
+    let scrim_weekly_wins: u8 = row.get(30)?;
+    let scrim_weekly_losses: u8 = row.get(31)?;
+    let scrim_slot_results_json: String = row.get(32)?;
+    let financial_ledger_json: String = row.get(33)?;
+    let sponsorship_json: String = row.get(34)?;
+    let facilities_json: String = row.get(35)?;
     let play_style_str: String = row.get(16)?;
     let training_focus_str: String = row.get(17)?;
     let training_intensity_str: String = row.get(18)?;
     let training_schedule_str: String = row.get(19)?;
-    let team_kind_str: String = row.get(37)?;
-    let parent_team_id: Option<String> = row.get(38)?;
-    let academy_team_id: Option<String> = row.get(39)?;
-    let academy_metadata_json: Option<String> = row.get(40)?;
+    let team_kind_str: String = row.get(36)?;
+    let parent_team_id: Option<String> = row.get(37)?;
+    let academy_team_id: Option<String> = row.get(38)?;
+    let academy_metadata_json: Option<String> = row.get(39)?;
 
     Ok(Team {
         id: row.get(0)?,
@@ -232,7 +232,7 @@ pub fn load_all_teams(conn: &Connection) -> Result<Vec<Team>, String> {
 
     log::info!(
         "[team_repo] load_all_teams: executing query on {} columns...",
-        41
+        40
     );
 
     let mut stmt = match conn.prepare(query) {
