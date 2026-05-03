@@ -20,14 +20,14 @@ pub fn champion_ban_count(conn: &Connection, champion_key: &str) -> Result<u32, 
 /// Base query columns reused across aggregations.
 const STAT_COLS: &str = "COUNT(*) as games,
     SUM(CASE WHEN result = 'Win' THEN 1 ELSE 0 END) as wins,
-    ROUND(AVG(kills), 1) as avg_kills,
-    ROUND(AVG(deaths), 1) as avg_deaths,
-    ROUND(AVG(assists), 1) as avg_assists,
-    ROUND(AVG(gold_earned), 0) as avg_gold,
-    ROUND(AVG(damage_dealt), 0) as avg_damage,
-    ROUND(AVG(creep_score), 0) as avg_cs,
-    ROUND(AVG(vision_score), 1) as avg_vision,
-    ROUND(AVG(duration_seconds), 0) as avg_duration";
+    COALESCE(ROUND(AVG(kills), 1), 0) as avg_kills,
+    COALESCE(ROUND(AVG(deaths), 1), 0) as avg_deaths,
+    COALESCE(ROUND(AVG(assists), 1), 0) as avg_assists,
+    COALESCE(ROUND(AVG(gold_earned), 0), 0) as avg_gold,
+    COALESCE(ROUND(AVG(damage_dealt), 0), 0) as avg_damage,
+    COALESCE(ROUND(AVG(creep_score), 0), 0) as avg_cs,
+    COALESCE(ROUND(AVG(vision_score), 1), 0) as avg_vision,
+    COALESCE(ROUND(AVG(duration_seconds), 0), 0) as avg_duration";
 
 /// Full aggregated stats for a single champion.
 pub fn champion_stats(
