@@ -5,6 +5,18 @@ use domain::champion_stats::{
     WeeklyChampionStats,
 };
 
+/// Count how many times a champion was banned.
+pub fn champion_ban_count(conn: &Connection, champion_key: &str) -> Result<u32, String> {
+    let pattern = format!("%\"{}\"%", champion_key);
+    conn.query_row(
+        "SELECT COUNT(DISTINCT fixture_id) FROM lol_player_match_stats
+         WHERE bans_json LIKE ?1 AND bans_json != '[]'",
+        params![pattern],
+        |row| row.get(0),
+    )
+    .map_err(|e| format!("Failed to query ban count: {e}"))
+}
+
 /// Base query columns reused across aggregations.
 const STAT_COLS: &str = "COUNT(*) as games,
     SUM(CASE WHEN result = 'Win' THEN 1 ELSE 0 END) as wins,
@@ -95,6 +107,14 @@ pub fn champion_stats(
         0.0
     };
 
+    // Ban rate
+    let ban_count = champion_ban_count(conn, champion_key)?;
+    let ban_rate = if total_all > 0 {
+        (ban_count as f64 / total_all as f64) * 100.0
+    } else {
+        0.0
+    };
+
     Ok(ChampionStatsSummary {
         champion_key: champion_key.to_string(),
         champion_name,
@@ -103,6 +123,7 @@ pub fn champion_stats(
         total_losses,
         win_rate,
         pick_rate,
+        ban_rate,
         avg_kills,
         avg_deaths,
         avg_assists,

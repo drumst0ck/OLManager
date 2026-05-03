@@ -124,6 +124,7 @@ interface ChampionStatsSummary {
   total_wins: number;
   win_rate: number;
   pick_rate: number;
+  ban_rate: number;
   avg_kills: number;
   avg_deaths: number;
   avg_assists: number;
@@ -276,6 +277,11 @@ export default function ChampionProfile({ champion, onClose }: ChampionProfilePr
                     color="text-primary-400"
                   />
                   <QuickStat
+                    label={t("champions.banRate", "Ban Rate")}
+                    value={stats ? `${stats.ban_rate.toFixed(1)}%` : "--"}
+                    color="text-red-400"
+                  />
+                  <QuickStat
                     label={t("champions.games", "Games")}
                     value={stats ? `${stats.total_games}` : "--"}
                     color="text-white"
@@ -321,6 +327,11 @@ export default function ChampionProfile({ champion, onClose }: ChampionProfilePr
               label={t("champions.pickRate", "Pick Rate")}
               value={stats ? `${stats.pick_rate.toFixed(1)}%` : "--"}
               color="text-primary-500"
+            />
+            <MobileQuickStat
+              label={t("champions.banRate", "Ban Rate")}
+              value={stats ? `${stats.ban_rate.toFixed(1)}%` : "--"}
+              color="text-red-500"
             />
             <MobileQuickStat
               label={t("champions.games", "Games")}

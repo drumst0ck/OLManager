@@ -18,6 +18,7 @@ pub struct ChampionStatsSummary {
     // Rates
     pub win_rate: f64,
     pub pick_rate: f64,
+    pub ban_rate: f64,
 
     // Performance
     pub avg_kills: f64,
