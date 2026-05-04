@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Search, ArrowUp, ArrowDown } from "lucide-react";
 import type { ChampionData } from "../../store/types";
+import { Card, CardBody } from "../ui";
 
 interface ChampionsGridProps {
   champions?: ChampionData[];
@@ -103,83 +104,82 @@ export default function ChampionsGrid({ champions, onChampionClick }: ChampionsG
             </button>
           ))}
         </div>
-        <span className="text-xs text-gray-400 dark:text-gray-500 font-heading uppercase tracking-wider">
-          {filtered.length} {t("champions.results", "resultado(s)")}
-        </span>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-navy-600">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50 dark:bg-navy-800 border-b border-gray-200 dark:border-navy-600 text-xs">
-              <th className="py-3 px-4 w-16" />
-              <th
-                className="py-3 px-4 font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 cursor-pointer select-none hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
-                onClick={toggleSort}
-              >
-                <span className="inline-flex items-center gap-1">
-                  {t("champions.name", "Campeón")}
-                  {sortDir === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                </span>
-              </th>
-              <th className="py-3 px-4 font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                {t("champions.roles", "Roles")}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-navy-600">
-            {filtered.map((champion) => {
-              const roles = parseRoles(champion.roles_json);
-              return (
-                <tr
-                  key={champion.id}
-                  onClick={() => handleClick(champion.champion_key)}
-                  className="hover:bg-gray-50 dark:hover:bg-navy-700/50 cursor-pointer transition-colors group"
-                >
-                  <td className="py-2 px-4">
-                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 dark:border-navy-600 bg-navy-800 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-[0_0_12px_rgba(251,191,36,0.3)] group-hover:border-yellow-400/50">
-                      <img
-                        src={championTileUrl(champion.champion_key)}
-                        alt={champion.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                  </td>
-                  <td className="py-2 px-4">
-                    <p className="font-semibold text-sm text-gray-800 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                      {champion.name}
-                    </p>
-                    <p className="text-[11px] text-gray-400 dark:text-gray-500">
-                      {champion.champion_key}
-                    </p>
-                  </td>
-                  <td className="py-2 px-4">
-                    <div className="flex gap-1.5">
-                      {roles.map((role) => {
-                        const normalized = role === "Bot" ? "ADC" : role.toUpperCase() as DraftRole;
-                        const iconUrl = LOL_ROLE_ICON_URLS[normalized];
-                        const badgeStyle = ROLE_BADGE_STYLES[normalized] ?? "bg-gray-100 text-gray-600 dark:bg-navy-600 dark:text-gray-400";
-                        if (!iconUrl) return null;
-                        return (
-                          <span
-                            key={role}
-                            className={`inline-flex items-center gap-1 font-bold font-heading uppercase tracking-wider rounded-md px-2 py-0.5 text-[10px] ${badgeStyle}`}
-                            title={role}
-                          >
-                            <img src={iconUrl} alt={role} className="h-3 w-3" />
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </td>
+      <Card>
+        <CardBody className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-navy-800 border-b border-gray-200 dark:border-navy-600 text-xs">
+                  <th className="py-3 px-4 font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 w-14" />
+                  <th
+                    className="py-3 px-4 font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 cursor-pointer select-none hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+                    onClick={toggleSort}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {t("champions.name", "Campeón")}
+                      {sortDir === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                    </span>
+                  </th>
+                  <th className="py-3 px-4 font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {t("champions.roles", "Roles")}
+                  </th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-navy-600">
+                {filtered.map((champion) => {
+                  const roles = parseRoles(champion.roles_json);
+                  return (
+                    <tr
+                      key={champion.id}
+                      onClick={() => handleClick(champion.champion_key)}
+                      className="hover:bg-gray-50 dark:hover:bg-navy-700/50 transition-colors cursor-pointer group"
+                    >
+                      <td className="py-2.5 px-4">
+                        <img
+                          src={championTileUrl(champion.champion_key)}
+                          alt={champion.name}
+                          className="w-8 h-8 rounded-lg object-cover bg-gray-200 dark:bg-navy-600"
+                          loading="lazy"
+                        />
+                      </td>
+                      <td className="py-2.5 px-4">
+                        <p className="font-semibold text-sm text-gray-800 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                          {champion.name}
+                        </p>
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                          {champion.champion_key}
+                        </p>
+                      </td>
+                      <td className="py-2.5 px-4">
+                        <div className="flex gap-1.5">
+                          {roles.map((role) => {
+                            const normalized = role === "Bot" ? "ADC" : role.toUpperCase() as DraftRole;
+                            const iconUrl = LOL_ROLE_ICON_URLS[normalized];
+                            const badgeStyle = ROLE_BADGE_STYLES[normalized] ?? "bg-gray-100 text-gray-600 dark:bg-navy-600 dark:text-gray-400";
+                            if (!iconUrl) return null;
+                            return (
+                              <span
+                                key={role}
+                                className={`inline-flex items-center gap-1 font-bold font-heading uppercase tracking-wider rounded-md px-2 py-0.5 text-[10px] ${badgeStyle}`}
+                                title={role}
+                              >
+                                <img src={iconUrl} alt={role} className="h-3 w-3" />
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }
