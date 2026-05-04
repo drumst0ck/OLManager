@@ -338,8 +338,8 @@ export default function DraftResultScreen({
           ) : null}
         </header>
 
-        <section className="grid grid-cols-1 xl:grid-cols-[320px_minmax(0,1fr)] gap-4">
-          <aside className="space-y-4">
+        <section className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-4">
+          <aside className="space-y-4 order-2">
             <div className="rounded-xl border border-yellow-400/25 bg-[#0a1433] p-4">
               <p className="text-[11px] uppercase tracking-[0.2em] text-yellow-300">{t("match.draftResult.bestOfMatch")}</p>
               <div className="mt-3 flex items-center gap-3">
