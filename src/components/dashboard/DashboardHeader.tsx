@@ -16,6 +16,8 @@ import type { MatchModeType } from "../../hooks/useAdvanceTime";
 import { Badge, ThemeToggle } from "../ui";
 import { translatePositionAbbreviation } from "../squad/SquadTab.helpers";
 import { getPlayerBadgeVariant } from "./dashboardHelpers";
+import { resolvePlayerPhoto } from "../../lib/playerPhotos";
+import { resolveExampleTeamLogo } from "../../lib/teamLogos";
 
 export interface DashboardMatchModeMeta {
   buttonColorClass: string;
@@ -205,12 +207,20 @@ function renderSearchResults(props: {
               onMouseDown={() => onSelectSearchTeam(team.id)}
               className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-gray-50 dark:hover:bg-navy-600"
             >
-              <div
-                className="flex h-6 w-6 items-center justify-center rounded text-xs font-bold text-white"
-                style={{ backgroundColor: team.colors.primary }}
-              >
-                {team.short_name.charAt(0)}
-              </div>
+              {(() => {
+                const teamLogo = resolveExampleTeamLogo(team.name);
+                if (teamLogo) {
+                  return <img src={teamLogo} alt={team.name} className="w-6 h-6 rounded object-contain" />;
+                }
+                return (
+                  <div
+                    className="flex h-6 w-6 items-center justify-center rounded text-xs font-bold text-white shrink-0"
+                    style={{ backgroundColor: team.colors.primary }}
+                  >
+                    {team.short_name.charAt(0)}
+                  </div>
+                );
+              })()}
               <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                 {team.name}
               </span>
@@ -230,9 +240,17 @@ function renderSearchResults(props: {
               onMouseDown={() => onSelectSearchPlayer(player.id)}
               className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-gray-50 dark:hover:bg-navy-600"
             >
-              <Badge variant={getPlayerBadgeVariant(player.position)} size="sm">
-                {translatePositionAbbreviation(t, player.position)}
-              </Badge>
+              {(() => {
+                const photo = resolvePlayerPhoto(player.id, player.match_name);
+                if (photo) {
+                  return <img src={photo} alt={player.match_name} className="w-6 h-6 rounded-full object-cover shrink-0" />;
+                }
+                return (
+                  <Badge variant={getPlayerBadgeVariant(player.position)} size="sm">
+                    {translatePositionAbbreviation(t, player.position)}
+                  </Badge>
+                );
+              })()}
               <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                 {player.full_name}
               </span>
@@ -254,9 +272,13 @@ function renderSearchResults(props: {
               onMouseDown={() => onSelectSearchChampion(champion.champion_key)}
               className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-gray-50 dark:hover:bg-navy-600"
             >
-              <div className="flex h-6 w-6 items-center justify-center rounded bg-primary-500/20 text-xs font-bold text-primary-500">
-                {champion.name.charAt(0)}
-              </div>
+              {champion.image_tile_url ? (
+                <img src={champion.image_tile_url} alt={champion.name} className="w-6 h-6 rounded object-cover shrink-0" />
+              ) : (
+                <div className="flex h-6 w-6 items-center justify-center rounded bg-primary-500/20 text-xs font-bold text-primary-500 shrink-0">
+                  {champion.name.charAt(0)}
+                </div>
+              )}
               <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                 {champion.name}
               </span>
