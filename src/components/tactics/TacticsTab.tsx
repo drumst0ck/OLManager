@@ -467,20 +467,39 @@ export default function TacticsTab({
             <CardHeader>{t("tactics.lol.impactAndCoherence")}</CardHeader>
             <CardBody className="p-4">
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-navy-600 dark:bg-navy-900/50">
-                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  {t("tactics.lol.coherenceLabel")}
-                </p>
-                <p className="text-lg font-heading font-bold text-gray-900 dark:text-gray-100">
-                  {coherenceScore >= 1
+                {(() => {
+                  const size = 64;
+                  const strokeWidth = 6;
+                  const radius = (size - strokeWidth) / 2;
+                  const circ = 2 * Math.PI * radius;
+                  const normalizedPct = Math.max(0, Math.min(100, ((coherenceScore + 2) / 4) * 100));
+                  const fillLen = (normalizedPct / 100) * circ;
+                  const scoreColor = coherenceScore >= 1 ? "#22c55e" : coherenceScore >= 0 ? "#eab308" : "#ef4444";
+                  const label = coherenceScore >= 1
                     ? t("tactics.lol.coherence.high")
                     : coherenceScore >= 0
                       ? t("tactics.lol.coherence.medium")
-                      : t("tactics.lol.coherence.low")}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-                  {t("tactics.lol.score")}: {coherenceScore > 0 ? "+" : ""}
-                  {coherenceScore.toFixed(2)}
-                </p>
+                      : t("tactics.lol.coherence.low");
+                  return (
+                    <div className="flex items-center gap-3">
+                      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+                        <circle cx={size/2} cy={size/2} r={radius} fill="none" strokeWidth={strokeWidth} className="stroke-gray-200 dark:stroke-navy-600" />
+                        <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={scoreColor} strokeWidth={strokeWidth}
+                          strokeDasharray={`${fillLen} ${circ - fillLen}`}
+                          strokeDashoffset={0}
+                          transform={`rotate(-90 ${size/2} ${size/2})`}
+                          className="transition-all duration-500"
+                        />
+                      </svg>
+                      <div>
+                        <p className="text-lg font-heading font-bold text-gray-900 dark:text-gray-100">{label}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-300">
+                          {t("tactics.lol.score")}: {coherenceScore > 0 ? "+" : ""}{coherenceScore.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </CardBody>
           </Card>
@@ -564,20 +583,42 @@ export default function TacticsTab({
             <CardBody className="p-4">
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-navy-600 dark:bg-navy-900/50">
-            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              {t("tactics.lol.coherenceLabel")}
-            </p>
-            <p className="text-lg font-heading font-bold text-gray-900 dark:text-gray-100">
-              {coherenceScore >= 1
+            {(() => {
+              const size = 64;
+              const strokeWidth = 6;
+              const radius = (size - strokeWidth) / 2;
+              const circ = 2 * Math.PI * radius;
+              const normalizedPct = Math.max(0, Math.min(100, ((coherenceScore + 2) / 4) * 100));
+              const fillLen = (normalizedPct / 100) * circ;
+              const scoreColor = coherenceScore >= 1 ? "#22c55e" : coherenceScore >= 0 ? "#eab308" : "#ef4444";
+              const label = coherenceScore >= 1
                 ? t("tactics.lol.coherence.high")
                 : coherenceScore >= 0
                   ? t("tactics.lol.coherence.medium")
-                  : t("tactics.lol.coherence.low")}
-            </p>
-            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-              {t("tactics.lol.score")}: {coherenceScore > 0 ? "+" : ""}
-              {coherenceScore.toFixed(2)}
-            </p>
+                  : t("tactics.lol.coherence.low");
+              return (
+                <div className="flex items-center gap-3">
+                  <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+                    <circle cx={size/2} cy={size/2} r={radius} fill="none" strokeWidth={strokeWidth} className="stroke-gray-200 dark:stroke-navy-600" />
+                    <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={scoreColor} strokeWidth={strokeWidth}
+                      strokeDasharray={`${fillLen} ${circ - fillLen}`}
+                      strokeDashoffset={0}
+                      transform={`rotate(-90 ${size/2} ${size/2})`}
+                      className="transition-all duration-500"
+                    />
+                  </svg>
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      {t("tactics.lol.coherenceLabel")}
+                    </p>
+                    <p className="text-lg font-heading font-bold text-gray-900 dark:text-gray-100">{label}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
+                      {t("tactics.lol.score")}: {coherenceScore > 0 ? "+" : ""}{coherenceScore.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="mt-3 space-y-2">
