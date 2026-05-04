@@ -618,6 +618,7 @@ export default function FinancesTab({
                             />
                         </div>
                       </div>
+                      </div>
                       <div className="flex flex-col items-end gap-2">
                         <Badge variant={getContractRiskBadgeVariant(riskLevel)}>
                           {riskLevel === "critical"
