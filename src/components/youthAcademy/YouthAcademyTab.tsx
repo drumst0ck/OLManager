@@ -142,8 +142,8 @@ export default function YouthAcademyTab({ gameState, onSelectPlayer, onGameUpdat
           const academyLogo = academyTeam ? resolveExampleTeamLogo(academyTeam.name) : null;
           if (academyLogo) {
             return (
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
-                <img src={academyLogo} alt={academyTeam!.name} className="w-8 h-8 object-contain" />
+              <div className="w-10 h-10 rounded-xl bg-primary-500/10 flex items-center justify-center shrink-0">
+                <img src={academyLogo} alt={academyTeam!.name} className="w-9 h-9 object-contain" />
               </div>
             );
           }
