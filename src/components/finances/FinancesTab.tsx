@@ -144,6 +144,15 @@ export default function FinancesTab({
   const cashRunwayWeeks = financeSnapshot.cashRunwayWeeks;
   const wageBudgetUsagePercent = financeSnapshot.wageBudgetUsagePercent;
   const weeklyWageBudget = financeSnapshot.weeklyWageBudget;
+  const playerWeeklyWages = roster.reduce(
+    (sum, p) => sum + annualAmountToWeeklyCommitment(p.wage),
+    0,
+  );
+  const staffWeeklyWages = teamStaff.reduce(
+    (sum, s) => sum + annualAmountToWeeklyCommitment(s.wage),
+    0,
+  );
+  const unusedWeeklyBudget = Math.max(0, weeklyWageBudget - playerWeeklyWages - staffWeeklyWages);
   const sponsorOffers = gameState.messages
     .filter(isPendingSponsorOffer)
     .map(resolveMessage);
@@ -464,6 +473,61 @@ export default function FinancesTab({
                 size="md"
                 showLabel
               />
+
+              {/* Budget breakdown donut */}
+              {(() => {
+                const slices = [
+                  { label: t("finances.players", "Jugadores"), value: playerWeeklyWages, color: "#3b82f6" },
+                  { label: t("finances.staff", "Staff"), value: staffWeeklyWages, color: "#8b5cf6" },
+                  { label: t("finances.unused", "Sin usar"), value: unusedWeeklyBudget, color: "#6b7280" },
+                ].filter((s) => s.value > 0);
+                const total = slices.reduce((s, s2) => s + s2.value, 0);
+                if (total <= 0) return null;
+                const size = 100;
+                const strokeWidth = 14;
+                const radius = (size - strokeWidth) / 2;
+                const circ = 2 * Math.PI * radius;
+                const cx = size / 2;
+                const cy = size / 2;
+                let cumPct = 0;
+                return (
+                  <div className="flex items-center gap-4 pt-2">
+                    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+                      <circle cx={cx} cy={cy} r={radius} fill="none" strokeWidth={strokeWidth} className="stroke-gray-200 dark:stroke-navy-600" />
+                      {slices.map((slice, i) => {
+                        const pct = slice.value / total;
+                        const offset = cumPct * circ;
+                        const len = pct * circ;
+                        cumPct += pct;
+                        return (
+                          <circle
+                            key={i}
+                            cx={cx} cy={cy} r={radius}
+                            fill="none"
+                            stroke={slice.color}
+                            strokeWidth={strokeWidth}
+                            strokeDasharray={`${len} ${circ - len}`}
+                            strokeDashoffset={-offset}
+                            transform={`rotate(-90 ${cx} ${cy})`}
+                            className="transition-all duration-500"
+                          />
+                        );
+                      })}
+                    </svg>
+                    <div className="flex flex-col gap-1.5 text-xs">
+                      {slices.map((slice, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: slice.color }} />
+                          <span className="text-gray-600 dark:text-gray-400">{slice.label}</span>
+                          <span className="font-heading font-bold tabular-nums text-gray-800 dark:text-gray-200">
+                            {Math.round((slice.value / total) * 100)}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="rounded-xl border border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-800 p-4 space-y-3">
