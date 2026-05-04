@@ -403,6 +403,9 @@ export default function Dashboard(): JSX.Element {
     : "";
   const unreadMessagesCount = gameState ? getUnreadMessagesCount(gameState) : 0;
   const myTeamName = gameState ? getManagerTeamName(gameState) : null;
+  const liveManagerName = gameState
+    ? (gameState.manager.nickname?.trim() || `${gameState.manager.first_name} ${gameState.manager.last_name}`)
+    : managerName;
 
   const teamLogo = useMemo(() => {
     if (!myTeamName) return null;
@@ -476,8 +479,8 @@ export default function Dashboard(): JSX.Element {
           setIsSidebarCollapsed((currentValue) => !currentValue);
         }}
         unreadMessagesCount={unreadMessagesCount}
-        managerName={managerName}
-        teamName={myTeamName}
+        managerName={liveManagerName}
+        teamName={null}
         teamLogo={teamLogo}
         onNavigateSettings={handleNavigateSettings}
         isUnemployed={isUnemployed ?? false}
