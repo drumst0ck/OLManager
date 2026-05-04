@@ -7,7 +7,7 @@ import {
   PlayerSelectionOptions,
 } from "../../store/gameStore";
 import { Card, CardHeader, CardBody, Badge, ProgressBar, Button, RoleBadge } from "../ui";
-import { User, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { User, ArrowUpDown, ArrowUp, ArrowDown, Check, Lock, AlertTriangle } from "lucide-react";
 import {
   formatVal,
   formatWeeklyAmount,
@@ -349,6 +349,14 @@ export default function FinancesTab({
                 <p className={`font-heading font-bold text-xl ${item.color}`}>
                   {formatVal(item.value)}
                 </p>
+                {item.label === t("finances.wageBudget") && (
+                  <div className="w-full max-w-[100px] mx-auto mt-2 h-1.5 rounded-full bg-gray-200 dark:bg-navy-600 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-accent-400"
+                      style={{ width: `${Math.min(100, wageBudgetUsagePercent)}%` }}
+                    />
+                  </div>
+                )}
               </div>
             ))}
             <div className="bg-gray-50 dark:bg-navy-800 rounded-xl p-4 text-center">
@@ -379,11 +387,13 @@ export default function FinancesTab({
               {formatWeeklyAmount(formatVal(weeklyWageBudget), weeklySuffix)}{" "}
               —{" "}
               {totalWages <= weeklyWageBudget ? (
-                <span className="text-primary-500">
-                  {t("finances.underBudget")}
+                <span className="inline-flex items-center gap-1 font-heading font-bold uppercase tracking-wider rounded-md bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-2 py-0.5 text-xs">
+                  <Check className="w-3 h-3" /> {t("finances.underBudget")}
                 </span>
               ) : (
-                <span className="text-red-500">{t("finances.overBudget")}</span>
+                <span className="inline-flex items-center gap-1 font-heading font-bold uppercase tracking-wider rounded-md bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 px-2 py-0.5 text-xs">
+                  <AlertTriangle className="w-3 h-3" /> {t("finances.overBudget")}
+                </span>
               )}
             </p>
           </div>
@@ -442,11 +452,19 @@ export default function FinancesTab({
               <p className="text-xs font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                 {t("finances.cashRunway")}
               </p>
-              <p className="font-heading font-bold text-base text-gray-800 dark:text-gray-100">
+              <p className={`font-heading font-bold text-base ${cashRunwayWeeks !== null && cashRunwayWeeks < 52 ? "text-red-500" : "text-gray-800 dark:text-gray-100"}`}>
                 {cashRunwayWeeks === null
                   ? t("finances.runwayStable")
                   : t("finances.runwayWeeks", { count: cashRunwayWeeks })}
               </p>
+              {cashRunwayWeeks !== null && (
+                <div className="w-full max-w-[120px] mx-auto mt-2 h-1.5 rounded-full bg-gray-200 dark:bg-navy-600 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${cashRunwayWeeks >= 104 ? "bg-success-400" : cashRunwayWeeks >= 52 ? "bg-yellow-500" : "bg-red-500"}`}
+                    style={{ width: `${Math.min(100, (cashRunwayWeeks / 260) * 100)}%` }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </CardBody>
@@ -591,6 +609,13 @@ export default function FinancesTab({
                               gameState.clock.current_date,
                             )}
                           </p>
+                          <div className="w-20 h-1 rounded-full bg-gray-200 dark:bg-navy-600 overflow-hidden mt-1">
+                            <div
+                              className={`h-full rounded-full ${riskLevel === "critical" ? "bg-red-500" : "bg-yellow-500"}`}
+                              style={{
+                                width: `${Math.min(100, (parseFloat(getContractYearsRemaining(player.contract_end, gameState.clock.current_date)) / 5) * 100)}%`,
+                              }}
+                            />
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
@@ -828,12 +853,12 @@ export default function FinancesTab({
                       {t("finances.upgradeFacility")}
                     </Button>
                     {!facility.upgradeFacility ? (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("finances.hubExpansionRequired")}
+                      <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        <Lock className="w-3 h-3" /> {t("finances.hubExpansionRequired")}
                       </p>
                     ) : !unlocksNextLevel ? (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("finances.hubExpansionRequired")}
+                      <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        <Lock className="w-3 h-3" /> {t("finances.hubExpansionRequired")}
                       </p>
                     ) : !canUpgrade ? (
                       <p className="text-xs text-red-500">
