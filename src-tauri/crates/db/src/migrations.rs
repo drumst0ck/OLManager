@@ -188,8 +188,6 @@ fn migrate_social_post_media_url(tx: &Transaction<'_>) -> HookResult {
     add_column_if_missing(tx, "social_posts", "media_url", "TEXT")?;
     Ok(())
 }
-    Ok(())
-}
 
 fn connection_column_exists(
     conn: &Connection,

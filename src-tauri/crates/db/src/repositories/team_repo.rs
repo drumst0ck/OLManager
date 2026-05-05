@@ -21,8 +21,8 @@ pub fn upsert_team(conn: &Connection, t: &Team) -> Result<(), String> {
         serde_json::to_string(&t.scrim_slot_results).map_err(|e| format!("JSON error: {}", e))?;
     let scrim_reports_json =
         serde_json::to_string(&t.scrim_reports).map_err(|e| format!("JSON error: {}", e))?;
-    let match_roles_json =
-        serde_json::to_string(&t.match_roles).map_err(|e| format!("JSON error: {}", e))?;
+    let team_roles_json =
+        serde_json::to_string(&t.team_roles).map_err(|e| format!("JSON error: {}", e))?;
     let financial_ledger_json =
         serde_json::to_string(&t.financial_ledger).map_err(|e| format!("JSON error: {}", e))?;
     let sponsorship_json =
@@ -54,7 +54,7 @@ pub fn upsert_team(conn: &Connection, t: &Team) -> Result<(), String> {
           season_income, season_expenses, formation, play_style,
           training_focus, training_intensity, training_schedule,
           founded_year, colors_primary, colors_secondary,
-          starting_xi_ids, match_roles, form, history, training_groups, weekly_scrim_opponent_ids, weekly_scrim_plan_team_ids, scrim_weekly_objective, scrim_weekly_slots, scrim_setup_locked_week_key, scrim_reputation, scrim_weekly_cancellations, scrim_loss_streak, scrim_weekly_played, scrim_weekly_wins, scrim_weekly_losses, scrim_slot_results, scrim_reports, financial_ledger, sponsorship, facilities,
+          starting_xi_ids, team_roles, form, history, training_groups, weekly_scrim_opponent_ids, weekly_scrim_plan_team_ids, scrim_weekly_objective, scrim_weekly_slots, scrim_setup_locked_week_key, scrim_reputation, scrim_weekly_cancellations, scrim_loss_streak, scrim_weekly_played, scrim_weekly_wins, scrim_weekly_losses, scrim_slot_results, scrim_reports, financial_ledger, sponsorship, facilities,
             team_kind, parent_team_id, academy_team_id, academy_metadata)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25, ?26, ?27, ?28, ?29, ?30, ?31, ?32, ?33, ?34, ?35, ?36, ?37, ?38, ?39, ?40, ?41, ?42, ?43, ?44, ?45, ?46, ?47, ?48)",
         params![
@@ -176,7 +176,7 @@ fn parse_academy_metadata(json: Option<String>) -> Option<AcademyMetadata> {
 fn row_to_team(row: &rusqlite::Row) -> rusqlite::Result<Team> {
     log::debug!("[team_repo] row_to_team: parsing row...");
     let starting_xi_json: String = row.get(22)?;
-    let match_roles_json: String = row.get(23)?;
+    let team_roles_json: String = row.get(23)?;
     let form_json: String = row.get(24)?;
     let history_json: String = row.get(25)?;
     let training_groups_json: String = row.get(26)?;
@@ -270,7 +270,7 @@ pub fn load_all_teams(conn: &Connection) -> Result<Vec<Team>, String> {
                     season_income, season_expenses, formation, play_style,
                     training_focus, training_intensity, training_schedule,
                     founded_year, colors_primary, colors_secondary,
-                    starting_xi_ids, match_roles, form, history, training_groups, weekly_scrim_opponent_ids, weekly_scrim_plan_team_ids, scrim_weekly_objective, scrim_weekly_slots, scrim_setup_locked_week_key, scrim_reputation, scrim_weekly_cancellations, scrim_loss_streak, scrim_weekly_played, scrim_weekly_wins, scrim_weekly_losses, scrim_slot_results, scrim_reports, financial_ledger, sponsorship, facilities,
+                    starting_xi_ids, team_roles, form, history, training_groups, weekly_scrim_opponent_ids, weekly_scrim_plan_team_ids, scrim_weekly_objective, scrim_weekly_slots, scrim_setup_locked_week_key, scrim_reputation, scrim_weekly_cancellations, scrim_loss_streak, scrim_weekly_played, scrim_weekly_wins, scrim_weekly_losses, scrim_slot_results, scrim_reports, financial_ledger, sponsorship, facilities,
                     team_kind, parent_team_id, academy_team_id, academy_metadata
              FROM teams";
 
@@ -362,7 +362,7 @@ pub fn load_team(conn: &Connection, id: &str) -> Result<Option<Team>, String> {
                     season_income, season_expenses, formation, play_style,
                     training_focus, training_intensity, training_schedule,
                     founded_year, colors_primary, colors_secondary,
-                    starting_xi_ids, match_roles, form, history, training_groups, weekly_scrim_opponent_ids, weekly_scrim_plan_team_ids, scrim_weekly_objective, scrim_weekly_slots, scrim_setup_locked_week_key, scrim_reputation, scrim_weekly_cancellations, scrim_loss_streak, scrim_weekly_played, scrim_weekly_wins, scrim_weekly_losses, scrim_slot_results, scrim_reports, financial_ledger, sponsorship, facilities,
+                    starting_xi_ids, team_roles, form, history, training_groups, weekly_scrim_opponent_ids, weekly_scrim_plan_team_ids, scrim_weekly_objective, scrim_weekly_slots, scrim_setup_locked_week_key, scrim_reputation, scrim_weekly_cancellations, scrim_loss_streak, scrim_weekly_played, scrim_weekly_wins, scrim_weekly_losses, scrim_slot_results, scrim_reports, financial_ledger, sponsorship, facilities,
                     team_kind, parent_team_id, academy_team_id, academy_metadata
              FROM teams WHERE id = ?1",
         )
