@@ -278,16 +278,14 @@ export default function PlayerProfileHeroCard({
             </p>
           </div>
 
-          {!isOwnClub ? (
-            <div className="mt-3">
-              <PlayerProfileScoutAction
-                availability={scoutAvailability}
-                scoutStatus={scoutStatus}
-                scoutError={scoutError}
-                onScout={onScout}
-              />
-            </div>
-          ) : null}
+          <div className="mt-3">
+            <PlayerProfileScoutAction
+              availability={scoutAvailability}
+              scoutStatus={scoutStatus}
+              scoutError={scoutError}
+              onScout={onScout}
+            />
+          </div>
 
           <div className="hidden md:flex items-center gap-3">
             <div className="grid grid-cols-3 gap-3 flex-1">
