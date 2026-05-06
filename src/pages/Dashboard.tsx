@@ -48,7 +48,9 @@ import { useSettingsStore } from "../store/settingsStore";
 import { resolveExampleTeamLogo } from "../lib/teamLogos";
 import ChampionPage from "../pages/ChampionPage";
 
-const CLUB_TABS = new Set(["Squad", "Tactics", "Training", "Scrims", "Champions", "Staff", "Scouting", "Youth", "Finances", "Transfers"]);
+const CLUB_TABS = new Set(["Squad", "Tactics", "Training", "Meta", "Scrims", "Staff", "Scouting", "Youth", "Finances", "Transfers"]);
+
+const WORLD_TABS = new Set(["Players", "Teams", "Tournaments", "ChampionsWorld"]);
 
 const TAB_TRANSLATION_KEYS: Record<string, string> = {
   Home: "dashboard.home",
@@ -58,13 +60,14 @@ const TAB_TRANSLATION_KEYS: Record<string, string> = {
   Tactics: "dashboard.tactics",
   Training: "dashboard.training",
   Scrims: "dashboard.scrims",
-  Champions: "dashboard.champions",
+  Meta: "dashboard.meta",
   Staff: "dashboard.staff",
   Finances: "dashboard.finances",
   Transfers: "dashboard.transfers",
   Players: "dashboard.players",
   Teams: "dashboard.teams",
   Tournaments: "dashboard.tournaments",
+  ChampionsWorld: "dashboard.champions_world",
   Schedule: "dashboard.schedule",
   News: "dashboard.news",
   Social: "dashboard.social",
@@ -93,6 +96,7 @@ export default function Dashboard(): JSX.Element {
   const [isSaving, setIsSaving] = useState(false);
   const [saveFlash, setSaveFlash] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [viewingChampionKey, setViewingChampionKey] = useState<string | null>(null);
   const [profileNavigation, setProfileNavigation] = useState(() =>
     createDashboardProfileNavigationState("Home"),
   );
@@ -106,14 +110,18 @@ export default function Dashboard(): JSX.Element {
 
   // Fetch initial state
   useEffect(() => {
+    console.log("[Dashboard] mounted, hasActiveGame:", hasActiveGame);
     if (!hasActiveGame) {
+      console.log("[Dashboard] no active game, redirecting to /");
       navigate("/");
       return;
     }
 
     const fetchState = async () => {
       try {
+        console.log("[Dashboard] calling get_active_game...");
         const state = await invoke<GameStateData>("get_active_game");
+        console.log("[Dashboard] get_active_game returned:", state ? "success" : "null");
         setGameState(state);
       } catch (err) {
         console.error("Failed to fetch game state:", err);
@@ -122,6 +130,25 @@ export default function Dashboard(): JSX.Element {
 
     fetchState();
   }, [hasActiveGame, navigate, setGameState]);
+
+  // Load champions once when game loads (if not already in gameState)
+  useEffect(() => {
+    if (!gameState) return;
+    if (gameState.champions && gameState.champions.length > 0) return;
+
+    const loadChampions = async () => {
+      try {
+        console.log("[Dashboard] Loading champions for world tab...");
+        const champions = await invoke<import("../store/types").ChampionData[]>("get_champions");
+        setGameState({ ...gameState, champions });
+        console.log(`[Dashboard] Loaded ${champions.length} champions`);
+      } catch (err) {
+        console.error("Failed to load champions:", err);
+      }
+    };
+
+    loadChampions();
+  }, [gameState]);
 
   const isUnemployed = gameState?.manager.team_id === null;
   const todayMatchFixture = gameState ? getTodayMatchFixture(gameState) : null;
@@ -283,12 +310,14 @@ export default function Dashboard(): JSX.Element {
   const currentModeMeta = MODE_META[matchMode];
 
   function handleNavClick(tab: string): void {
+    setViewingChampionKey(null);
     setProfileNavigation((currentState) =>
       navigateDashboardProfiles(currentState, tab),
     );
   }
 
   function handleNavigate(tab: string, context?: DashboardNavigateContext): void {
+    setViewingChampionKey(null);
     setProfileNavigation((currentState) =>
       navigateDashboardProfiles(currentState, tab, context),
     );
@@ -427,6 +456,15 @@ export default function Dashboard(): JSX.Element {
     );
   }
 
+  // Push scrim auto-delegation notice if present
+  if (autoDelegationNotice) {
+    dashboardAlerts.unshift({
+      id: "scrim_auto_delegate_notice",
+      text: autoDelegationNotice,
+      tab: "Scrims",
+      severity: "info",
+    });
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-navy-900 flex transition-colors duration-300">
@@ -517,6 +555,9 @@ export default function Dashboard(): JSX.Element {
           onSelectTeam={selectTeam}
           onGameUpdate={setGameState}
           isUnemployed={isUnemployed ?? false}
+          viewingChampionKey={viewingChampionKey}
+          onCloseChampion={() => setViewingChampionKey(null)}
+          onViewChampion={(championKey: string) => setViewingChampionKey(championKey)}
         />
       </main>
     </div>
