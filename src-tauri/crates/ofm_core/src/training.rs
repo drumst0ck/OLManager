@@ -73,8 +73,8 @@ struct TeamScrimDayOutcome {
     reports: Vec<ScrimReport>,
 }
 
-fn lol_role_for_position(position: &LolRole) -> &'static str {
-    match position {
+fn lol_role_for_lol_role(role: &LolRole) -> &'static str {
+    match role {
         LolRole::Top => "TOP",
         LolRole::Jungle => "JUNGLE",
         LolRole::Mid => "MID",
@@ -129,7 +129,7 @@ fn scrim_champion_picks_for_team(game: &Game, team_id: &str) -> Vec<ScrimChampio
     players
         .into_iter()
         .map(|player| {
-            let role = lol_role_for_position(&player.natural_position).to_string();
+            let role = lol_role_for_lol_role(&player.natural_position).to_string();
             let champion_id = crate::champions::training_targets_for_player(player)
                 .into_iter()
                 .find(|target| !target.trim().is_empty())
@@ -1317,7 +1317,7 @@ fn is_lol_training_capped(player: &domain::player::Player) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{apply_focus_gains, is_lol_training_capped};
-    use domain::player::{Player, PlayerAttributes, Position};
+    use domain::player::{LolRole, Player, PlayerAttributes};
     use domain::team::TrainingFocus;
 
     fn attrs(stat: u8) -> PlayerAttributes {
@@ -1352,7 +1352,7 @@ mod tests {
             "Cap".to_string(),
             "2002-01-01".to_string(),
             "GB".to_string(),
-            Position::Midfielder,
+            LolRole::Mid,
             attrs(90),
         );
         player.potential_base = 90;
