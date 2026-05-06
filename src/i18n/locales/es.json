@@ -775,7 +775,7 @@
     "removeFromLoanList": "Quitar de la lista de cesiones",
     "outOfPosition": "Fuera de posición",
     "outOfPositionTooltip": "Jugando fuera de la función preferida del jugador",
-"dragHint": "Arrastra jugadores del banquillo al Rift o intercambia titulares entre posiciones.",
+    "dragHint": "Arrastra jugadores del banquillo al Rift o intercambia titulares entre posiciones.",
     "benchDragHint": "Usa la lista del banquillo para arrastrar jugadores directamente al Rift.",
     "dragToPitch": "Arrastrar al Rift",
     "filterPlayers": "Filtrar por nombre del jugador o posición",
@@ -2257,7 +2257,19 @@
     "startMatch": "Iniciar Draft",
     "notAssigned": "Sin asignar",
     "keyStats": "Stats Clave",
-    "continueDashboard": "Continuar al Panel"
+    "continueDashboard": "Continuar al Panel",
+    "opponentIntel": {
+      "kicker": "Preparaci?n pre-partido",
+      "title": "Inteligencia del rival",
+      "confidence": "Confianza de inteligencia",
+      "rivalPoolByRole": "Pool de campeones rival por rol",
+      "noPoolYet": "Todav?a no se revel? pool de campeones.",
+      "suggestedBans": "Baneos sugeridos",
+      "threat": "Amenaza",
+      "metaThreats": "Amenazas del meta",
+      "meta": "Meta",
+      "masteryHighlights": "Puntos fuertes de maestr?a"
+    }
   },
   "endOfSeason": {
     "seasonComplete": "Temporada Completa",

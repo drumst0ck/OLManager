@@ -66,6 +66,8 @@ export default function PreMatchSetup({
 
   const userTeam =
     userSide === "Home" ? snapshot.home_team : snapshot.away_team;
+  const oppTeam =
+    userSide === "Home" ? snapshot.away_team : snapshot.home_team;
 
   const homeTeamColor =
     gameState.teams.find((t) => t.id === snapshot.home_team.id)?.colors

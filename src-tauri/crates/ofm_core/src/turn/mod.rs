@@ -1267,7 +1267,7 @@ fn auto_sim_mastery_picks(game: &Game, home_team_id: &str, away_team_id: &str) -
             .teams
             .iter()
             .find(|team| team.id == *team_id)
-            .map(|team| team.starting_xi_ids.clone())
+            .map(|team| team.active_lineup_ids.clone())
             .unwrap_or_default();
 
         if player_ids.len() < 5 {

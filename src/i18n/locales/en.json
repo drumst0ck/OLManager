@@ -2252,7 +2252,19 @@
     "startMatch": "Start Match",
     "notAssigned": "Not assigned",
     "keyStats": "Key Stats",
-    "continueDashboard": "Continue to Dashboard"
+    "continueDashboard": "Continue to Dashboard",
+    "opponentIntel": {
+      "kicker": "Pre-match preparation",
+      "title": "Opponent intelligence",
+      "confidence": "Intel confidence",
+      "rivalPoolByRole": "Rival champion pool by role",
+      "noPoolYet": "No champion pool revealed yet.",
+      "suggestedBans": "Suggested bans",
+      "threat": "Threat",
+      "metaThreats": "Meta threats",
+      "meta": "Meta",
+      "masteryHighlights": "Mastery highlights"
+    }
   },
   "endOfSeason": {
     "seasonComplete": "Season Complete",
