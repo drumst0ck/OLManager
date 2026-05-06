@@ -174,36 +174,35 @@ fn parse_academy_metadata(json: Option<String>) -> Option<AcademyMetadata> {
 }
 
 fn row_to_team(row: &rusqlite::Row) -> rusqlite::Result<Team> {
-    log::debug!("[team_repo] row_to_team: parsing row...");
-    let starting_xi_json: String = row.get(22)?;
-    let team_roles_json: String = row.get(23)?;
-    let form_json: String = row.get(24)?;
-    let history_json: String = row.get(25)?;
-    let training_groups_json: String = row.get(26)?;
-    let weekly_scrims_json: String = row.get(27)?;
-    let weekly_scrim_plans_json: String = row.get(28)?;
-    let scrim_weekly_objective_str: Option<String> = row.get(29)?;
-    let scrim_weekly_slots: u8 = row.get(30)?;
-    let scrim_setup_locked_week_key: Option<String> = row.get(31)?;
-    let scrim_reputation: u8 = row.get(32)?;
-    let scrim_weekly_cancellations: u8 = row.get(33)?;
-    let scrim_loss_streak: u8 = row.get(34)?;
-    let scrim_weekly_played: u8 = row.get(35)?;
-    let scrim_weekly_wins: u8 = row.get(36)?;
-    let scrim_weekly_losses: u8 = row.get(37)?;
-    let scrim_slot_results_json: String = row.get(38)?;
-    let scrim_reports_json: String = row.get(39)?;
-    let financial_ledger_json: String = row.get(40)?;
-    let sponsorship_json: String = row.get(41)?;
-    let facilities_json: String = row.get(42)?;
-    let play_style_str: String = row.get(15)?;
-    let training_focus_str: String = row.get(16)?;
-    let training_intensity_str: String = row.get(17)?;
-    let training_schedule_str: String = row.get(18)?;
-    let team_kind_str: String = row.get(43)?;
-    let parent_team_id: Option<String> = row.get(44)?;
-    let academy_team_id: Option<String> = row.get(45)?;
-    let academy_metadata_json: Option<String> = row.get(46)?;
+    let starting_xi_json: String = row.get("starting_xi_ids")?;
+    let team_roles_json: String = row.get("team_roles")?;
+    let form_json: String = row.get("form")?;
+    let history_json: String = row.get("history")?;
+    let training_groups_json: String = row.get("training_groups")?;
+    let weekly_scrims_json: String = row.get("weekly_scrim_opponent_ids")?;
+    let weekly_scrim_plans_json: Option<String> = row.get("weekly_scrim_plan_team_ids")?;
+    let scrim_weekly_objective_str: Option<String> = row.get("scrim_weekly_objective")?;
+    let scrim_weekly_slots: Option<u8> = row.get("scrim_weekly_slots")?;
+    let scrim_setup_locked_week_key: Option<String> = row.get("scrim_setup_locked_week_key")?;
+    let scrim_reputation: Option<u8> = row.get("scrim_reputation")?;
+    let scrim_weekly_cancellations: Option<u8> = row.get("scrim_weekly_cancellations")?;
+    let scrim_loss_streak: Option<u8> = row.get("scrim_loss_streak")?;
+    let scrim_weekly_played: Option<u8> = row.get("scrim_weekly_played")?;
+    let scrim_weekly_wins: Option<u8> = row.get("scrim_weekly_wins")?;
+    let scrim_weekly_losses: Option<u8> = row.get("scrim_weekly_losses")?;
+    let scrim_slot_results_json: String = row.get("scrim_slot_results")?;
+    let scrim_reports_json: Option<String> = row.get("scrim_reports")?;
+    let financial_ledger_json: String = row.get("financial_ledger")?;
+    let sponsorship_json: String = row.get("sponsorship")?;
+    let facilities_json: String = row.get("facilities")?;
+    let play_style_str: String = row.get("play_style")?;
+    let training_focus_str: String = row.get("training_focus")?;
+    let training_intensity_str: String = row.get("training_intensity")?;
+    let training_schedule_str: String = row.get("training_schedule")?;
+    let team_kind_str: Option<String> = row.get("team_kind")?;
+    let parent_team_id: Option<String> = row.get("parent_team_id")?;
+    let academy_team_id: Option<String> = row.get("academy_team_id")?;
+    let academy_metadata_json: Option<String> = row.get("academy_metadata")?;
 
     Ok(Team {
         id: row.get(0)?,
