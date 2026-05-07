@@ -12,29 +12,29 @@ export const LOL_ROLE_ORDER: LolRole[] = ["TOP", "JUNGLE", "MID", "ADC", "SUPPOR
 
 export const ROLE_KEY_STATS: Record<LolRole, { label: string; key: string }[]> = {
   TOP: [
-    { label: "MEC", key: "dribbling" },
-    { label: "TF", key: "teamwork" },
-    { label: "DISC", key: "composure" },
+    { label: "MEC", key: "mechanics" },
+    { label: "TF", key: "teamfighting" },
+    { label: "DISC", key: "discipline" },
   ],
   JUNGLE: [
-    { label: "MAC", key: "vision" },
-    { label: "SHOT", key: "leadership" },
-    { label: "DISC", key: "composure" },
+    { label: "MAC", key: "macro_play" },
+    { label: "SHOT", key: "shotcalling" },
+    { label: "DISC", key: "discipline" },
   ],
   MID: [
-    { label: "MEC", key: "dribbling" },
-    { label: "LAN", key: "shooting" },
-    { label: "MAC", key: "vision" },
+    { label: "MEC", key: "mechanics" },
+    { label: "LAN", key: "laning" },
+    { label: "MAC", key: "macro_play" },
   ],
   ADC: [
-    { label: "LAN", key: "shooting" },
-    { label: "MEC", key: "dribbling" },
-    { label: "MENT", key: "stamina" },
+    { label: "LAN", key: "laning" },
+    { label: "MEC", key: "mechanics" },
+    { label: "MENT", key: "mental_resilience" },
   ],
   SUPPORT: [
-    { label: "SHOT", key: "leadership" },
-    { label: "MAC", key: "vision" },
-    { label: "TF", key: "teamwork" },
+    { label: "SHOT", key: "shotcalling" },
+    { label: "MAC", key: "macro_play" },
+    { label: "TF", key: "teamfighting" },
   ],
 };
 

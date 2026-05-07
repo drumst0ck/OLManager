@@ -259,32 +259,32 @@ fn own_player_report_has_exact_attributes_no_noise() {
     // With noise_range = 0, fuzzed values should match original exactly
     assert_eq!(
         report.mechanics,
-        Some(attrs.dribbling),
+        Some(attrs.mechanics),
         "Mechanics should be exact for own player"
     );
     assert_eq!(
         report.laning,
-        Some(attrs.shooting),
+        Some(attrs.laning),
         "Laning should be exact for own player"
     );
     assert_eq!(
         report.teamfighting,
-        Some(attrs.teamwork),
+        Some(attrs.teamfighting),
         "Teamfighting should be exact for own player"
     );
     assert_eq!(
         report.macro_,
-        Some(attrs.vision),
+        Some(attrs.macro_play),
         "Macro should be exact for own player"
     );
     assert_eq!(
         report.champion_pool,
-        Some(attrs.agility),
+        Some(attrs.champion_pool),
         "Champion pool should be exact for own player"
     );
     assert_eq!(
         report.discipline,
-        Some(attrs.composure),
+        Some(attrs.discipline),
         "Discipline should be exact for own player"
     );
     assert_eq!(

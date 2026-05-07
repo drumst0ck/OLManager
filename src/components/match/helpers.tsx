@@ -200,6 +200,26 @@ export function phaseLabel(phase: string): string {
   switch (phase) {
     case "PreGame":
       return "Draft";
+    case "PreKickOff":
+      return "Pre-Match";
+    case "FirstHalf":
+      return "1st Half";
+    case "HalfTime":
+      return "Half Time";
+    case "SecondHalf":
+      return "2nd Half";
+    case "FullTime":
+      return "Full Time";
+    case "ExtraTimeFirstHalf":
+      return "ET 1st Half";
+    case "ExtraTimeHalfTime":
+      return "ET Half Time";
+    case "ExtraTimeSecondHalf":
+      return "ET 2nd Half";
+    case "ExtraTimeEnd":
+      return "ET End";
+    case "PenaltyShootout":
+      return "Penalties";
     case "Live":
       return "Live";
     case "Finished":

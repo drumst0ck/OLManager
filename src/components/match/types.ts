@@ -111,25 +111,16 @@ export interface EnginePlayerData {
   name: string;
   role?: string;
   condition: number;
-  pace: number;
-  stamina: number;
-  strength: number;
-  agility: number;
-  passing: number;
-  shooting: number;
-  tackling: number;
-  dribbling: number;
-  defending: number;
-  positioning: number;
-  vision: number;
-  decisions: number;
-  composure: number;
-  aggression: number;
-  teamwork: number;
-  leadership: number;
-  handling: number;
-  reflexes: number;
-  aerial: number;
+  fitness: number;
+  mechanics: number;
+  laning: number;
+  teamfighting: number;
+  macro_play: number;
+  consistency: number;
+  shotcalling: number;
+  champion_pool: number;
+  discipline: number;
+  mental_resilience: number;
   traits: string[];
 }
 
