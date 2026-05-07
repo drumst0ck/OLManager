@@ -137,12 +137,12 @@ export interface TeamData {
   short_name: string;
   country: string;
   city: string;
-  arena_name?: string;
-  /** @deprecated Compatibility alias for pre-LoL tests. Use arena_name. */
   stadium_name?: string;
-  /** @deprecated Compatibility alias for pre-LoL tests. Use arena_capacity. */
+  /** @deprecated Compatibility alias for pre-LoL tests. Use stadium_name. */
+  stadium_name?: string;
+  /** @deprecated Compatibility alias for pre-LoL tests. Use stadium_capacity. */
   stadium_capacity?: number;
-  arena_capacity?: number;
+  stadium_capacity?: number;
   finance: number;
   manager_id: string | null;
   reputation: number;
